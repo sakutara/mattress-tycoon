@@ -172,7 +172,7 @@
     h += '<div class="card"><b>Chi phí tháng này</b>';
     if (!detail) h += '<p class="muted small">🔒 Thuê Kế toán để mở báo cáo chi tiết theo từng khoản và theo hãng.</p>';
     else {
-      h += '<table class="tbl small">' + Object.keys(s.month.exp).map(function (k) { return '<tr><td>' + (E2.EXP_NAMES[k] || k) + '</td><td class="r">' + F.vnd(s.month.exp[k]) + '</td></tr>'; }).join('') + (s.month.expressFeeIn ? '<tr><td>Thu phí hỏa tốc từ khách (đã tính vào doanh thu)</td><td class="r pos">+' + F.vnd(s.month.expressFeeIn) + '</td></tr>' : '') + '</table>';
+      h += '<table class="tbl small">' + Object.keys(s.month.exp).map(function (k) { return '<tr><td>' + (E2.EXP_NAMES[k] || k) + '</td><td class="r">' + F.vnd(s.month.exp[k]) + '</td></tr>'; }).join('') + (s.month.expressFeeIn ? '<tr><td>Thu phí ship từ khách (đã tính vào doanh thu)</td><td class="r pos">+' + F.vnd(s.month.expressFeeIn) + '</td></tr>' : '') + '</table>';
       var bb = t.byBrand; var ks = Object.keys(bb);
       if (ks.length) h += '<b class="small">Doanh thu hôm nay theo hãng</b><table class="tbl small">' + ks.map(function (k) { return '<tr><td>' + E(G.brandName(k)) + '</td><td class="r">' + F.vnd(bb[k]) + '</td></tr>'; }).join('') + '</table>';
     }
