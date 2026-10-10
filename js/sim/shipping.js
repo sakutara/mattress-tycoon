@@ -114,7 +114,7 @@
       if (!queue) { plan = SH.plan(o, car, s.day, now, true, false); if (!plan.ok) return { ok: false, msg: plan.reason }; }
       else if (car.own) { if (!G.staff.count('delivery')) return { ok: false, msg: 'Chưa có NV Giao hàng' }; var needT = Math.max(1, Math.ceil(o.vol / SH.TRIP_VOL())); if (SH.tripsCap() < needT) return { ok: false, msg: 'NV giao hàng không đủ lượt cho sáng mai' }; }
       if (!car.own && s.money < fee) return { ok: false, msg: 'Không đủ tiền phí ship' };
-      if (fee) { if (express) { G.econ.expense(fee, 'shipexpress'); if (opts.payExp) { G.econ.income(fee, 'expressfee'); G.econ.addStat('expressFeeIn', fee); o.expPaid = true; } } else G.econ.expense(fee, 'shipfee'); }
+      if (fee) { G.econ.expense(fee, express ? 'shipexpress' : 'shipfee'); if (opts.payExp) { G.econ.income(fee, 'expressfee'); G.econ.addStat('expressFeeIn', fee); o.expPaid = true; } }
       o.carrier = carrierId; o.fee = fee; o.booked = s.day; o.bookedMin = now; o.express = express;
       if (plan) {
         o.pickupMin = plan.pickup; o.arriveDay = plan.arriveDay; o.arriveMin = plan.arriveMin; o.promiseDay = plan.promiseDay; o.promiseMin = plan.promiseMin; o.status = 'Chờ lấy'; o.late = false;

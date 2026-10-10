@@ -53,7 +53,7 @@
     h += '<div class="card small">' + (cd ? '<span class="chipx st-go">⏱ ' + cd + '</span>' : '<span class="chipx st-wait">Đã quá 17h · đơn mới giao sáng mai</span>') +
       '<div class="muted">Đặt trước 17h giao trong ngày · hỏa tốc nhận đến 20h · quá 21h chưa giao sẽ chuyển sáng mai.</div>' +
       '<div class="row"><label class="nw"><input type="checkbox" data-chg="shipExpOn"' + (sh.expressOn ? ' checked' : '') + '> Cho phép giao hỏa tốc (thu hút khách gấp)</label></div>' +
-      '<div class="row"><label class="nw"><input type="checkbox" data-chg="shipExpPay"' + (sh.expPay !== false ? ' checked' : '') + '> Khách trả phí hỏa tốc (bỏ chọn = shop chịu, tăng đánh giá)</label></div></div>';
+      '<div class="row"><label class="nw"><input type="checkbox" data-chg="shipExpPay"' + (sh.expPay !== false ? ' checked' : '') + '> Khách chịu phí ship (mọi đơn vị vận chuyển; bỏ chọn = shop chịu, tăng đánh giá)</label></div></div>';
     h += '<table class="tbl small"><tr><th>Đơn vị</th><th class="r">Phí</th><th>Lấy+giao</th><th>Trễ</th><th>Hư</th></tr>' + G.data.carriers.map(function (c) {
       var a1 = c.pickup[0] + c.transit[0], a2 = c.pickup[1] + c.transit[1];
       return '<tr><td>' + E(c.name) + '<br><span class="muted">' + E(c.desc) + '</span></td><td class="r">' + (c.own ? 'miễn phí' : F.short(c.base) + '+' + F.short(c.perVol) + '/đv') + '</td><td>' + Math.round(a1 / 6) / 10 + '-' + Math.round(a2 / 6) / 10 + 'h</td><td>' + Math.round(c.late * 100) + '%</td><td>' + Math.round(c.damage * 100) + '%</td></tr>';
