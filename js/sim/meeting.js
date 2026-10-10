@@ -277,7 +277,7 @@
       else G.notify.push({ title: 'Họp nhân viên tuần này', text: 'Hôm nay có buổi họp ' + m.len + ' phút để nghe ý kiến và giải quyết khiếu nại.', type: 'info', sound: 'info', action: { label: 'Mở buổi họp', fn: function () { G.ui.openMeeting && G.ui.openMeeting(); } } });
     } else { m.due = false; m.nextDay = M.nextWeekday(s.day + 1); } }
   });
-  G.on('dayEnd', function () { var m = M.st(); if (m.due && !m.held && !m.current) { M.skip(true); G.notify.push({ title: 'Bỏ lỡ buổi họp tuần', text: 'Nhân viên bức xúc vì không được họp (+8 bức xúc).', type: 'warn', sound: false }); m.skippedRecent = true; } if (m.current) m.current = null; M.release(); });
+  G.on('dayEnd', function () { var m = M.st(), s = G.state, any = s.staff.some(function (x) { return x.status !== 'leave' && G.staff.shiftFor(x, s.day) !== 'off'; }); if (m.due && !m.held && !m.current && !any) { m.due = false; m.postponed = false; m.nextDay = s.day + 1; } else if (m.due && !m.held && !m.current) { M.skip(true); G.notify.push({ title: 'Bỏ lỡ buổi họp tuần', text: 'Nhân viên bức xúc vì không được họp (+8 bức xúc).', type: 'warn', sound: false }); m.skippedRecent = true; } if (m.current) m.current = null; M.release(); });
   G.on('tick', function () { var m = M.st(); if (m.active && m.active.day === G.state.day && G.state.minute >= m.active.endMin && m.active.done) M.release(); else if (m.active && m.active.day === G.state.day && G.state.minute >= m.active.endMin + 5) M.release(); });
   G.conversionMods.push(function () { return M.buffMult(); });
   var trm = function () { var m = M.st(), pen = (m.sepPenalty || 0) * 0.01; return M.buffMult() * (1 - Math.min(0.05, pen)); }; trm.label = 'Tinh thần nhóm'; G.trafficMods.push(trm);
