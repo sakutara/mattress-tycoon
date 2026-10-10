@@ -1,0 +1,30 @@
+{
+  "name": "Vua Chăn Ga",
+  "short_name": "Vua Chăn Ga",
+  "description": "Tycoon cửa hàng chăn ga gối đệm",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6e6c8",
+  "theme_color": "#f6e6c8",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#3AA8F0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vua Chăn Ga">
+<link rel="manifest" href="manifest.webmanifest?v=20261010a1">
+<link rel="icon" type="image/svg+xml" href="icon.svg?v=20261010a1">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261010a1">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261010a1">
+<title>Vua Chăn Ga - Tycoon cửa hàng chăn ga gối đệm</title>
+<link rel="stylesheet" href="css/style.css?v=20261010a1">
+</head>
+<body>
+<div id="app">
+<header id="hud">
+  <div class="hud-row">
+    <button id="drawer-btn" class="icon" title="Menu">☰</button>
+    <div class="hud-chip money" title="Tiền mặt">💰 <b id="h-money">0</b></div>
+    <div class="hud-chip day" title="Ngày / giờ"><b id="h-day">Ngày 1</b><small id="h-time">08:00</small><small id="h-wx"></small></div>
+    <div class="hud-chip" title="Sao trung bình - quyết định lượng khách">⭐ <b id="h-rating">3.5</b></div>
+    <div class="hud-chip" title="Danh tiếng 0-100">👑 <b id="h-rep">5</b></div>
+    <div class="bell-wrap"><button id="bell-btn" class="icon" title="Thông báo">🔔<span id="bell-badge">0</span></button>
+      <div id="bell-pop"><div class="bell-head">Thông báo</div><div id="bell-list"></div></div></div>
+  </div>
+  <div id="drawer">
+    <div class="drawer-grid">
+      <div class="dr-card"><div class="muted small" id="h-wd">Ngày</div><div class="hud-brand">🛏 <b id="h-shop">Vua Chăn Ga</b></div><div class="small">Cấp: <b id="h-level">Sạp chợ</b></div></div>
+      <button class="dr-card" id="h-traffic-box" type="button"><div class="muted small">Khách / giờ (chạm xem chi tiết)</div><b id="h-traffic">0</b></button>
+    </div>
+    <div id="traffic-bd" class="dr-card small" style="display:none"></div>
+    <div class="drawer-btns">
+      <button id="profile-btn" class="btn">👤 Hồ sơ</button><button id="icons-btn" class="btn" onclick="G.icon.show()">✨ Thư viện icon</button><button id="help-btn" class="btn">❓ Hướng dẫn</button><button id="save-btn" class="btn">💾 Lưu</button><button id="reset-btn" class="btn danger">🗑 Chơi lại</button>
+    </div>
+    <label class="set-row"><span>🎵 Nhạc nền</span><input type="checkbox" id="set-music"></label>
+    <label class="set-row"><span>Âm lượng nhạc</span><input type="range" id="set-vol" min="0" max="100" step="5"></label>
+    <label class="set-row"><span>🔔 Hiệu ứng âm thanh</span><input type="checkbox" id="set-sfx"></label>
+    <label class="set-row"><span>☀ Tự động mở cửa mỗi ngày</span><input type="checkbox" id="set-auto"></label>
+    <label class="set-row"><span>🔓 Hiện cả mục chưa mở khóa</span><input type="checkbox" id="set-locked"></label>
+    <label class="set-row"><span>🎥 Tự chuyển sang phòng livestream khi bắt đầu live</span><input type="checkbox" id="set-autolive"></label>
+  </div>
+</header>
+<section id="stage">
+  <div class="canvas-wrap"><canvas id="shop"></canvas><div id="canvas-tip"></div><div id="cam-btns" class="cambtns"></div>
+    <div id="page-ui"><button id="pg-l" class="pgedge l" style="display:none"></button><button id="pg-r" class="pgedge r" style="display:none"></button><div id="pg-dots"></div><div id="pg-hint" style="display:none">← vuốt trái / phải để đổi phòng →</div><button id="live-chip" style="display:none"></button></div><div id="qmenu" class="qmenu" style="display:none"></div></div>
+  <div id="stage-ctl">
+    <div class="speed" id="speed"><button data-s="0" title="Tạm dừng">⏸</button><button data-s="1" class="on">1x</button><button data-s="2">2x</button><button data-s="4">4x</button></div>
+    <div id="stage-info" class="stage-info"></div>
+  </div>
+</section>
+<main id="home">
+  <div id="prep-banner" style="display:none">
+    <div class="pb-text"><b id="pb-title">🌅 Chuẩn bị ngày mới</b><div id="pb-sum" class="small"></div><div id="pb-todo" class="small"></div></div>
+    <label class="small nw"><input type="checkbox" id="pb-auto"> Tự động mở cửa mỗi ngày</label>
+  </div>
+  <div id="home-cards"></div>
+</main>
+<aside id="panel" class="sheet">
+  <div class="sheet-head"><b id="sheet-title">Panel</b><span id="sheet-money" title="Tiền mặt">💰 0</span><button id="open-mini" class="btn mini primary" style="display:none">☀ Mở cửa</button><button id="sheet-x" class="icon" title="Đóng">✕</button></div>
+  <nav id="tabs"></nav>
+  <div id="tab-body"></div>
+</aside>
+<aside id="sheet2" class="sheet">
+  <div class="sheet-head"><b id="sheet2-title">Chọn</b><button id="sheet2-x" class="icon" title="Đóng">✕</button></div>
+  <div id="sheet2-body"></div>
+</aside>
+<nav id="bottom-nav"></nav>
+<button id="open-btn" class="fab" style="display:none">☀ Mở cửa / Bắt đầu ngày</button>
+</div>
+<div id="toasts"></div>
+<div id="rotate-hint"><div class="ri">📱↻</div><div>Vui lòng xoay điện thoại về chiều dọc để chơi</div></div>
+<div id="modal-root"></div>
+
+<script src="js/core/util.js?v=20261010a1"></script>
+<script src="js/core/state.js?v=20261010a1"></script>
+<script src="js/core/clock.js?v=20261010a1"></script>
+<script src="js/core/save.js?v=20261010a1"></script>
+<script src="js/core/audio.js?v=20261010a1"></script>
+<script src="js/data/brands.js?v=20261010a1"></script>
+<script src="js/data/products.js?v=20261010a1"></script>
+<script src="js/data/staff.js?v=20261010a1"></script>
+<script src="js/data/milestones.js?v=20261010a1"></script>
+<script src="js/data/story.js?v=20261010a1"></script>
+<script src="js/ui/notify.js?v=20261010a1"></script>
+<script src="js/sim/layout.js?v=20261010a1"></script>
+<script src="js/sim/economy.js?v=20261010a1"></script>
+<script src="js/sim/lifecycle.js?v=20261010a1"></script>
+<script src="js/sim/warehouse.js?v=20261010a1"></script>
+<script src="js/sim/pricing.js?v=20261010a1"></script>
+<script src="js/sim/purchasing.js?v=20261010a1"></script>
+<script src="js/sim/staff.js?v=20261010a1"></script>
+<script src="js/sim/training.js?v=20261010a1"></script>
+<script src="js/sim/reviews.js?v=20261010a1"></script>
+<script src="js/sim/seasons.js?v=20261010a1"></script>
+<script src="js/sim/weather.js?v=20261010a1"></script>
+<script src="js/sim/sales.js?v=20261010a1"></script>
+<script src="js/sim/customers.js?v=20261010a1"></script>
+<script src="js/sim/progress.js?v=20261010a1"></script>
+<script src="js/sim/shipping.js?v=20261010a1"></script>
+<script src="js/sim/deposits.js?v=20261010a1"></script>
+<script src="js/sim/b2b.js?v=20261010a1"></script>
+<script src="js/sim/events.js?v=20261010a1"></script>
+<script src="js/sim/campaigns.js?v=20261010a1"></script>
+<script src="js/sim/suggest.js?v=20261010a1"></script>
+<script src="js/sim/autobuy.js?v=20261010a1"></script>
+<script src="js/sim/meeting.js?v=20261010a1"></script>
+<script src="js/sim/live.js?v=20261010a1"></script>
+<script src="js/sim/returns.js?v=20261010a1"></script>
+<script src="js/sim/decor.js?v=20261010a1"></script>
+<script src="js/sim/staffroom.js?v=20261010a1"></script>
+<script src="js/render/sprites.js?v=20261010a1"></script>
+<script src="js/render/iso.js?v=20261010a1"></script>
+<script src="js/render/decor_sprites.js?v=20261010a1"></script>
+<script src="js/render/shop.js?v=20261010a1"></script>
+<script src="js/ui/profile.js?v=20261010a1"></script>
+<script src="js/ui/hud.js?v=20261010a1"></script>
+<script src="js/ui/panels.js?v=20261010a1"></script>
+<script src="js/ui/panels2.js?v=20261010a1"></script>
+<script src="js/ui/panels3.js?v=20261010a1"></script>
+<script src="js/ui/panels4.js?v=20261010a1"></script>
+<script src="js/ui/panels5.js?v=20261010a1"></script>
+<script src="js/ui/panels6.js?v=20261010a1"></script>
+<script src="js/ui/panels7.js?v=20261010a1"></script>
+<script src="js/ui/unlocks.js?v=20261010a1"></script>
+<script src="js/ui/shelfui.js?v=20261010a1"></script>
+<script src="js/ui/nav.js?v=20261010a1"></script>
+<script src="js/ui/staffui.js?v=20261010a1"></script>
+<script src="js/ui/autobuyui.js?v=20261010a1"></script>
+<script src="js/ui/meetingui.js?v=20261010a1"></script>
+<script src="js/ui/lookbook.js?v=20261010a1"></script>
+<script src="js/ui/campwiz.js?v=20261010a1"></script>
+<script src="js/ui/icons.js?v=20261010a1"></script>
+<script src="js/ui/tutorial.js?v=20261010a1"></script>
+<script src="js/main.js?v=20261010a1"></script>
+</body>
+</html>
