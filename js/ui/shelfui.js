@@ -53,7 +53,7 @@
       h += sampleCard(sl.sku, sl.kind === 'bed' ? 'Mẫu đệm đang trưng bày' : 'Mẫu đang trưng bày', '<div class="sh-acts"><button class="btn" data-act="shRemove">📤 Gỡ về kho</button><button class="btn" data-act="shSellSample">🏷 Bán mẫu -15%</button><button class="btn" data-act="shToBuy">📦 Nhập hàng</button></div>' + (W.lineStock(sl.sku) === 0 ? xBtn(sl, sl.sku) : ''));
     } else {
       h += '<div class="card muted">Ô đang trống - chọn mẫu để trưng bày từ danh mục bên dưới.</div>';
-      if (sl.last && G.skus[sl.last] && W.pickSize(sl.last)) h += '<div class="row"><button class="btn primary" data-act="shRelast">↩ Trưng bày lại mẫu trước: ' + E(G.sprites.codeOf(sl.last)) + '</button></div>';
+      if (sl.last && G.skus[sl.last] && G.shelf.pickSize(sl.last)) h += '<div class="row"><button class="btn primary" data-act="shRelast">↩ Trưng bày lại mẫu trước: ' + E(G.sprites.codeOf(sl.last)) + '</button></div>';
     }
     if (sl.kind === 'bed') {
       if (sl.set && G.skus[sl.set]) h += sampleCard(sl.set, 'Bộ chăn ga gối phủ giường', '<div class="sh-acts"><button class="btn" data-act="shSetOff">Bỏ bộ khỏi giường</button></div>');
