@@ -146,7 +146,7 @@
   // trưng bày mẫu: ưu tiên giường chưa phủ bộ, rồi ô kệ trống
   LB.display = function (skuId) {
     var s = G.state, W = G.wh;
-    if (!W.pickSize(skuId)) return { ok: false, msg: 'Kho chưa có bộ này - hãy nhập ít nhất 1 bộ làm mẫu' };
+    if (!G.shelf.pickSize(skuId)) return { ok: false, msg: 'Kho chưa có bộ này - hãy nhập ít nhất 1 bộ làm mẫu' };
     var bed = s.slots.filter(function (x) { return x.kind === 'bed' && x.sku && !x.set; })[0] || s.slots.filter(function (x) { return x.kind === 'bed' && x.sku; })[0];
     if (bed) return G.shelf.assignSet(bed.id, skuId);
     var sl = s.slots.filter(function (x) { return x.kind === 'shelf' && !x.sku; })[0];
