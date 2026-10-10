@@ -110,7 +110,7 @@
         if (got > 0) { i.done += got; vol += got * v; units += got; cogs += got * (s.costBasis[i.sku] || G.skus[i.sku].cost); }
       });
       if (!units) return { ok: false, msg: 'Không có hàng sẵn để chất lên xe (kiểm tra kho cửa hàng/kệ)' };
-      if (mode === 'own') s.shipping.tripsUsed++; else G.econ.expense(B.HIRE_TRIP_FEE, 'shipfee');
+      if (mode === 'own') s.shipping.tripsUsed++; else { G.econ.expense(B.HIRE_TRIP_FEE, 'shipfee'); G.econ.income(B.HIRE_TRIP_FEE * 0.5, 'expressfee'); G.econ.addStat('expressFeeIn', B.HIRE_TRIP_FEE * 0.5); }
       G.econ.cogs(cogs); o.trips++;
       var msg = 'Chuyến ' + o.trips + ': giao ' + units + ' sản phẩm';
       if (B.done(o)) { B.settle(o, false); msg += ' - HOÀN TẤT đơn'; }

@@ -104,7 +104,7 @@
     var offers = B.pendingOffers(), act = B.active();
     if (!G.lvl().b2b && !act.length && !offers.length) return '<div class="card"><b>Đơn khách sạn / resort</b><p class="muted">🔒 Mở từ cấp <b>Showroom</b>. Cần thêm NV Sale B2B (tăng tần suất, đàm phán), NV Giao hàng và đủ hàng tồn kho.</p></div>';
     h += '<div class="card small">Khả năng có đơn mới mỗi ngày: <b>' + Math.round(B.freq() * 100) + '%</b> (tăng theo NV Sale B2B và danh tiếng) · Hoàn tất ' + st.done + ' (trễ ' + st.late + ') · thất bại ' + st.failed + ' · tổng thu ' + F.short(st.earned) + '<div class="row"><label class="nw"><input type="checkbox" data-chg="b2bAuto"' + (s.b2b.auto ? ' checked' : '') + '> Tự động giao khi có hàng (NV Giao hàng)</label></div>' +
-      '<div class="muted">Lượt giao hôm nay: ' + G.shipping.tripsLeft() + '/' + G.shipping.tripsCap() + ' · thuê xe ngoài ' + F.short(B.HIRE_TRIP_FEE) + '/chuyến</div></div>';
+      '<div class="muted">Lượt giao hôm nay: ' + G.shipping.tripsLeft() + '/' + G.shipping.tripsCap() + ' · thuê xe ngoài ' + F.short(B.HIRE_TRIP_FEE) + '/chuyến (khách hỗ trợ 50%)</div></div>';
     h += '<h4>Đơn mới chờ quyết định (' + offers.length + ')</h4>';
     if (!offers.length) h += '<p class="muted small">Không có đơn mới.</p>';
     offers.forEach(function (o) { h += '<div class="card small"><b>' + E(o.client) + '</b> · ' + F.short(o.value) + ' · hạn ngày ' + o.deadline + ' · trả lời trước ngày ' + o.validUntil + '<br>' + grid(o.items) + '<div class="row"><button class="mini primary" data-act="b2bView" data-id="' + o.id + '">Xem & quyết định</button></div></div>'; });
