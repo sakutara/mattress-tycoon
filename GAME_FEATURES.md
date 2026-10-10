@@ -230,7 +230,7 @@ Xây từ cấp 1 (8 tr, 50k/ngày); sofa, bàn, máy cà phê, locker, bảng c
 ### 12.1 Đánh giá khách hàng
 - Sau mỗi đơn hoặc lần khách bỏ về giận có thể có đánh giá 1–5★ kèm bình luận tiếng Việt sinh từ ngữ cảnh (chờ lâu, hết hàng, lỗi, giao trễ/hư, giá, hàng giả, tên nhân viên, **màu sắc**, loại 1/loại 2…).
 - Người chơi **phản hồi**: Cảm ơn / Xin lỗi + voucher 100k (có thể nâng ★) / Giải thích / Phản bác gay gắt (rủi ro) / tự gõ. Đánh giá chưa trả lời quá 3 ngày bị trừ uy tín; tỉ lệ phản hồi cộng tối đa +8% chốt đơn. **Điểm ★ trung bình tỉ lệ thuận lượng khách** (×điểm/3).
-- Nhân viên **CSKH** tự phản hồi đánh giá mỗi đầu ngày (bật/tắt ở tab *Đánh giá*): ★4-5 cảm ơn, ★3 giải thích, ★1-2 xin lỗi + voucher 100k (nếu còn tiền), không bao giờ phản bác. Mỗi CSKH xử lý tối đa 3 + 2×số sao đánh giá/ngày, ưu tiên ★ thấp trước, và được cộng XP.
+- Nhân viên **CSKH** tự phản hồi đánh giá mỗi đầu ngày (bật/tắt ở tab *Đánh giá*): ★4-5 cảm ơn, ★3 giải thích; đánh giá **1-2★ để người chơi tự trả lời**; không bao giờ phản bác. Mỗi CSKH xử lý tối đa 3 + 2×số sao đánh giá/ngày, ưu tiên ★ thấp trước, và được cộng XP.
 
 ### 12.2 Bảo hành & đổi trả (tab *Bảo hành*)
 - **Chính sách của cửa hàng** chỉnh bất cứ lúc nào: thời hạn đổi trả (0/3/7/15/30 ngày), bảo hành (6/12/24/36 tháng; đệm +12), điều kiện (chỉ lỗi nhà sản xuất / lỗi + đổi 1-1 / hoàn tiền), phí đổi trả 0–20%, cần hóa đơn, nhận hàng đã dùng, ưu tiên VIP, theo điều khoản hãng. Chính sách thoáng → thêm khách/đánh giá nhưng nhiều yêu cầu; chặt → ngược lại.

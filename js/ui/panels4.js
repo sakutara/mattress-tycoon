@@ -12,7 +12,7 @@
     h += '<div class="card"><div style="font-size:26px;color:#ffc107"><b>' + R.avg().toFixed(2) + '</b> ★</div><div class="small muted">Lượng khách/giờ = khách cơ bản × (★ / 3) = ×' + (R.avg() / 3).toFixed(2) + '. Tỉ lệ phản hồi: ' + Math.round(R.replyRate() * 100) + '% (tăng nhẹ tỉ lệ chốt đơn).</div>' +
       [5, 4, 3, 2, 1].map(function (r) { return '<div class="rel"><span>' + r + '★</span>' + bar(list.length ? dist[r] / list.length : 0, r >= 4 ? 'good' : r <= 2 ? 'bad' : '') + '<span class="small">' + dist[r] + '</span></div>'; }).join('') + '</div>';
     var cs = G.staff.count('cskh');
-    h += '<div class="card small"><label class="nw"><input type="checkbox" data-chg="rvAuto"' + (s.revs.auto ? ' checked' : '') + '> CSKH tự phản hồi đánh giá</label><div class="muted">Mỗi ngày CSKH trả lời tối đa <b>' + R.cskhCap() + '</b> đánh giá (ưu tiên ★ thấp): ★4-5 cảm ơn, ★3 giải thích, ★1-2 xin lỗi + voucher 100k. Sao càng cao càng xử lý được nhiều.</div>' + (cs ? '' : '<div class="warn">Chưa có nhân viên CSKH: thuê ở tab Nhân viên.</div>') + '</div>';
+    h += '<div class="card small"><label class="nw"><input type="checkbox" data-chg="rvAuto"' + (s.revs.auto ? ' checked' : '') + '> CSKH tự phản hồi đánh giá</label><div class="muted">Mỗi ngày CSKH trả lời tối đa <b>' + R.cskhCap() + '</b> đánh giá (ưu tiên ★ thấp): ★4-5 cảm ơn, ★3 giải thích. <b>Đánh giá 1-2★ do bạn tự trả lời.</b> Sao càng cao càng xử lý được nhiều.</div>' + (cs ? '' : '<div class="warn">Chưa có nhân viên CSKH: thuê ở tab Nhân viên.</div>') + '</div>';
     var un = R.unanswered();
     h += '<h4>Chờ phản hồi (' + un.length + ')</h4>';
     if (!un.length) h += '<p class="muted small">Không có đánh giá nào chờ phản hồi.</p>';
