@@ -136,7 +136,9 @@
       return G.state.slots.some(function (x) { return x.id !== slotId && ((x.sku && G.skus[x.sku].line === ln) || (x.set && G.skus[x.set].line === ln)); });
     },
     // trả 1 mẫu về kho (đánh dấu là hàng trưng bày: bán giảm giá nhẹ)
-    giveBack: function (sku) { var s = G.state; if (!sku) return; W.add(sku, 1, 'st'); s.showUnits[sku] = (s.showUnits[sku] || 0) + 1; },
+    // chọn kho còn chỗ nhận lại (kho cửa hàng trước); null nếu đầy
+    backLoc: function (sku, extra) { var v = G.skus[sku].vol, locs = W.locs(); for (var i = 0; i < locs.length; i++) if (W.free(locs[i]) - (extra && extra[locs[i]] || 0) >= v) return locs[i]; return null; },
+    giveBack: function (sku, force) { var s = G.state; if (!sku) return true; var loc = S.backLoc(sku) || (force ? 'st' : null); if (!loc) return false; W.add(sku, 1, loc); s.showUnits[sku] = (s.showUnits[sku] || 0) + 1; return true; },
     // chọn kích cỡ làm mẫu: ưu tiên sku đã chọn, nếu hết thì cỡ khác cùng dòng còn hàng
     pickSize: function (sku) { if (W.pickSource(sku)) return sku; var t = G.skus[sku]; if (!t) return null; var l = G.lines[t.line].skus.filter(function (k) { return W.pickSource(k.id); }); return l.length ? l[0].id : null; },
     takeOne: function (sku) {
@@ -144,6 +146,9 @@
       W.add(sku, -1, src); if ((s.showUnits[sku] || 0) > 0) s.showUnits[sku]--; return true;
     },
     clear: function (slot) {
+      var ex = {}, ok = true;
+      [slot.sku, slot.set].forEach(function (k) { if (!k) return; var l = S.backLoc(k, ex); if (!l) ok = false; else ex[l] = (ex[l] || 0) + G.skus[k].vol; });
+      if (!ok) return false; // kho không đủ chỗ: giữ nguyên mẫu trên kệ
       if (slot.sku) { slot.last = slot.sku; S.giveBack(slot.sku); }
       if (slot.set) { S.giveBack(slot.set); slot.set = null; }
       slot.sku = null; slot.qty = 0; return true;
@@ -157,7 +162,7 @@
       if (slot.sku && G.skus[slot.sku].line === G.skus[sku].line) return { ok: true };
       if (S.shownElsewhere(slotId, sku)) return { ok: false, msg: 'Mẫu này đang trưng bày ở ô khác' };
       sku = S.pickSize(sku); if (!sku) return { ok: false, msg: 'Kho chưa có sản phẩm này để làm mẫu - hãy nhập ít nhất 1' };
-      if (slot.sku) { slot.last = slot.sku; S.giveBack(slot.sku); }
+      if (slot.sku) { slot.last = slot.sku; S.giveBack(slot.sku, true); }
       S.takeOne(sku); slot.sku = sku; slot.qty = 1; slot.last = sku;
       return { ok: true, msg: 'Đã trưng bày mẫu: ' + G.skus[sku].label };
     },
@@ -165,18 +170,18 @@
     // chọn bộ chăn ga gối phủ lên giường mẫu
     assignSet: function (slotId, sku) {
       var slot = S.byId(slotId); if (!slot || slot.kind !== 'bed') return { ok: false, msg: 'Chỉ giường trưng bày mới phủ bộ chăn ga' };
-      if (!sku) { if (slot.set) { S.giveBack(slot.set); slot.set = null; } return { ok: true }; }
+      if (!sku) { if (slot.set) { if (!S.giveBack(slot.set)) return { ok: false, msg: 'Kho không đủ chỗ nhận lại' }; slot.set = null; } return { ok: true }; }
       var t = G.skus[sku]; if (!t || t.type !== 'ga') return { ok: false, msg: 'Chọn một bộ chăn ga gối' };
       if (slot.set && G.skus[slot.set].line === t.line) return { ok: true };
       if (S.shownElsewhere(slotId, sku)) return { ok: false, msg: 'Bộ này đang trưng bày ở ô khác' };
       sku = S.pickSize(sku); if (!sku) return { ok: false, msg: 'Kho chưa có bộ này - hãy nhập ít nhất 1 bộ làm mẫu' };
       t = G.skus[sku];
-      if (slot.set) S.giveBack(slot.set);
+      if (slot.set) S.giveBack(slot.set, true);
       S.takeOne(sku); slot.set = sku;
       return { ok: true, msg: 'Giường mẫu đã phủ bộ ' + t.cw.code + ' ' + t.cw.name };
     },
     fill: function () { return 0; },
-    unload: function (slot) { if (!slot.sku) return { ok: false, msg: 'Ô trống' }; S.clear(slot); return { ok: true, msg: 'Đã gỡ mẫu về kho (hàng trưng bày)' }; },
+    unload: function (slot) { if (!slot.sku) return { ok: false, msg: 'Ô trống' }; if (!S.clear(slot)) return { ok: false, msg: 'Kho không đủ chỗ nhận lại' }; return { ok: true, msg: 'Đã gỡ mẫu về kho (hàng trưng bày)' }; },
     // bán luôn mẫu đang trưng bày với giá giảm 15% (thu tiền ngay)
     sellSample: function (slotId) {
       var slot = S.byId(slotId); if (!slot || !slot.sku) return { ok: false, msg: 'Ô trống' };
