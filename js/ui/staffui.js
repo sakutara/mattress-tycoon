@@ -4,7 +4,7 @@
   var G = window.G, E = G.esc, F = G.fmt, UI = G.ui, P = UI.panels, bar = UI.bar, res = UI.res, opts = UI.opts;
   function I() { return G.icon.apply(null, arguments); }
   var RI = { sales: 'user', b2b: 'hotel', accountant: 'receipt', warehouse: 'box', delivery: 'truck', marketing: 'megaphone', cskh: 'shield', manager: 'crown' };
-  var BEN = { sales: 'Tư vấn khách, chốt đơn nhiều hơn', b2b: 'Nhiều đơn khách sạn, đàm phán giá', accountant: 'Giảm thuế/phí, báo cáo chi tiết', warehouse: 'Tự bổ sung kệ, kiểm hàng, gợi ý nhập', delivery: 'Giao đơn tại nhà trong ngày, miễn phí ship', marketing: 'Thêm khách, chạy chiến dịch', cskh: 'Tự xử lý bảo hành / đổi trả', manager: 'Buff cả đội, tự chia ca' };
+  var BEN = { sales: 'Tư vấn khách, chốt đơn nhiều hơn', b2b: 'Nhiều đơn khách sạn, đàm phán giá', accountant: 'Giảm thuế/phí, báo cáo chi tiết', warehouse: 'Tự bổ sung kệ, kiểm hàng, gợi ý nhập', delivery: 'Giao đơn tại nhà trong ngày, miễn phí ship', marketing: 'Thêm khách, chạy chiến dịch', cskh: 'Tự xử lý bảo hành / đổi trả & phản hồi đánh giá', manager: 'Buff cả đội, tự chia ca' };
   var SUBS = [['team', 'Đội ngũ', 'people'], ['hire', 'Tuyển dụng', 'user2'], ['sched', 'Lịch ca', 'clock'], ['train', 'Đào tạo', 'book'], ['room', 'Phòng NV', 'cup'], ['meeting', 'Họp', 'chat']];
   UI.st.staffFilter = ''; UI.st.hireRole = ''; UI.st.staffSel = null; UI.st.staffInfo = false; UI.st.fireAsk = null;
   // ---- ảnh chibi (cache) ----
@@ -87,7 +87,7 @@
   // ---- Tuyển dụng ----
   function recommend(rid) {
     var s = G.state, S = G.staff, n = S.count(rid), t = s.today || {};
-    if (rid === 'cskh') return n === 0 && G.returns.pendingList().length >= 2;
+    if (rid === 'cskh') return n === 0 && (G.returns.pendingList().length >= 2 || G.reviews.unanswered().length >= 3);
     if (rid === 'delivery') return G.shipping.pendingCount() >= 3 || (n === 0 && s.shipping.orders.length > 4);
     if (rid === 'sales') return n === 0 || (t.lostWait || 0) >= 3;
     if (rid === 'warehouse') return n === 0 && s.slots.filter(function (x) { return !x.sku; }).length >= 3;
