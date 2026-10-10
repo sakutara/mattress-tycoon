@@ -95,7 +95,7 @@
   };
   A.shExpress = function (el) { res(G.suggest.placeQuickX(el.dataset.sku, +el.dataset.n)); };
   A.shRelast = function () { var sl = slotById(SH.cur); res(G.shelf.assign(sl.id, sl.last)); };
-  A.shRemove = function () { var sl = slotById(SH.cur); G.shelf.clear(sl); res({ ok: true, msg: 'Đã gỡ mẫu về kho (thành hàng trưng bày)' }); };
+  A.shRemove = function () { var sl = slotById(SH.cur); if (!G.shelf.clear(sl)) { res({ ok: false, msg: 'Kho không đủ chỗ nhận lại mẫu' }); return; } res({ ok: true, msg: 'Đã gỡ mẫu về kho (thành hàng trưng bày)' }); };
   A.shSellSample = function () { res(G.shelf.sellSample(SH.cur)); };
   A.shSetOff = function () { res(G.shelf.assignSet(SH.cur, null)); };
   A.shToBuy = function () { S2.close(); P.show('buy'); };
