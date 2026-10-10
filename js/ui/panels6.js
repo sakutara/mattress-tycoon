@@ -35,14 +35,15 @@
   UI.st.sug = UI.st.sug || { more: false, collapsed: {}, exp: {} };
   UI.sugHtml = function () {
     var C = SG.compute(), rows = C.rows, hp = C.helper, st = UI.st.sug, all = rows.filter(function (r) { return r.action === 'order'; }), clears = rows.filter(function (r) { return r.action === 'clear'; });
-    var tc = SG.tierCounts(), meaningful = all.filter(function (r) { return r.tier <= 3; }), inB = all.filter(function (r) { return r.inBatch; }).length, tot = 0; meaningful.forEach(function (r) { tot += r.chosen.cash; });
+    var tc = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 }; rows.forEach(function (r) { if (!SG.inCart(r)) tc[r.tier] = (tc[r.tier] || 0) + 1; });
+    var meaningful = all.filter(function (r) { return r.tier <= 3 && !SG.inCart(r); }), inB = all.filter(function (r) { return r.inBatch; }).length, tot = 0; meaningful.forEach(function (r) { tot += r.chosen.cash; });
     var h = '<h4>Gợi ý nhập hàng</h4>';
     h += '<div class="card small sugsum"><b>' + meaningful.length + ' gợi ý</b> cần chú ý (<b class="neg">' + tc[1] + ' cho đơn khách</b> · ' + tc[2] + ' khách hỏi hết hàng · ' + tc[3] + ' mẫu trưng bày) · tổng ~<b>' + F.short(tot) + '</b>' + (all.length > meaningful.length ? ' · còn ' + (all.length - meaningful.length) + ' gợi ý ít gấp hơn' : '') + (inB ? '<div class="muted">' + inB + ' món đã nằm trong danh sách của Thủ kho (ẩn)</div>' : '') + '</div>';
     if (!hp) h += '<p class="muted small">Đang hiện gợi ý cơ bản. 🔒 Thuê <b>Kế toán</b> hoặc <b>Thủ kho</b> để thêm: bán chạy, mẫu mới, tồn lâu, bảng so sánh nguồn nhập.</p>';
     if (!rows.length) return h + '<p class="muted small">Chưa có gợi ý nào - kho và kệ đang ổn.</p>';
     // một chạm: đặt tất cả đơn khách
     if (tc[1]) { var pl = SG.tier1(); h += '<div class="card sugbox"><b>' + G.icon('gift', 16) + ' Đơn khách (' + pl.rows.length + ' mặt hàng · ' + F.short(pl.total) + ')</b><div class="small">' + Object.keys(pl.groups).map(function (k) { var g = pl.groups[k]; return E(G.srcById[g.src].name) + (g.express ? ' ⚡' : '') + ': ' + F.short(g.total); }).join(' · ') + (pl.xN ? ' · ' + pl.xN + ' món dùng ⚡ lấy ngay để kịp hạn' : '') + '</div>' + (pl.late ? '<div class="neg small">' + G.icon('warn', 12) + ' ' + pl.late + ' món vẫn có thể trễ hạn (không còn lượt ⚡)</div>' : '<div class="pos small">' + G.icon('check', 12) + ' Kịp hạn các đơn khách</div>') + '<button class="btn primary" data-act="sugTier1">Thêm đơn khách vào giỏ</button></div>'; }
-    var vis = all.filter(function (r) { return !r.inBatch; });
+    var vis = all.filter(function (r) { return !r.inBatch && !SG.inCart(r); });
     var budget = 12, shownN = 0, hidden = 0, tiersHtml = '';
     for (var t = 1; t <= 6; t++) {
       var list = vis.filter(function (r) { return r.tier === t; }); if (!list.length) continue;

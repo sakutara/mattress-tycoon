@@ -148,13 +148,13 @@
     });
     S.cache = { rows: rows, helper: hp }; S.ct = now; return S.cache;
   };
-  S.count = function () { return S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier <= 3 && !r.inBatch; }).length; };   // số gợi ý có ý nghĩa (tầng 1-3)
-  S.countCust = function () { return S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier === 1; }).length; };
+  S.count = function () { return S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier <= 3 && !r.inBatch && !S.inCart(r); }).length; };   // số gợi ý có ý nghĩa (tầng 1-3)
+  S.countCust = function () { return S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier === 1 && !S.inCart(r); }).length; };
   S.countAll = function () { return S.compute().rows.filter(function (r) { return r.action === 'order'; }).length; };
   S.tierCounts = function () { var c = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 }; S.compute().rows.forEach(function (r) { c[r.tier] = (c[r.tier] || 0) + 1; }); return c; };
   // đặt tất cả đơn khách (tầng 1): đơn thường, riêng món sẽ trễ hạn thì ⚡ lấy ngay nếu có
   S.tier1 = function () {
-    var rows = S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier === 1; }), plan = { rows: rows, groups: {}, total: 0, late: 0, xN: 0 };
+    var rows = S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier === 1 && !S.inCart(r); }), plan = { rows: rows, groups: {}, total: 0, late: 0, xN: 0 };
     rows.forEach(function (r) {
       var useX = r.lateRisk && r.xp && r.xp.left > 0, src = useX ? r.xp.src : r.chosen.src, qty = useX ? r.xp.qty : r.chosen.qty, cost = useX ? r.xp.total : r.chosen.cash, key = src + (useX ? '|x' : ''), g = plan.groups[key] || (plan.groups[key] = { src: src, express: useX, items: {}, total: 0, n: 0 });
       g.items[r.sku] = (g.items[r.sku] || 0) + qty; g.total += cost; g.n++; plan.total += cost; if (r.lateRisk && !useX) plan.late++; if (useX) plan.xN++;
@@ -168,7 +168,7 @@
   };
   // ---- GIỎ ĐỀ XUẤT: các gợi ý cùng nguồn gom thành 1 đơn; bỏ món / sửa SL ngay trong giỏ; đơn tối thiểu do người chơi chỉnh (autobuy.minOrder) ----
   // ---- GIỎ HÀNG CHUNG (G.purchasing.cart*): thêm gợi ý = thêm vào giỏ theo nguồn đã chọn ----
-  S.inCart = function (r) { return r.action === 'order' && PU.cartQty(r.chosen.src, r.sku) > 0; };
+  S.inCart = function (r) { return r.action === 'order' && PU.cartSrcs().some(function (src) { return PU.cartQty(src, r.sku) > 0; }); };
   S.addCart = function (key) {
     var r = S.rowByKey(key); if (!r || r.action !== 'order') return { ok: false, msg: 'Gợi ý không còn' };
     PU.cartAdd(r.chosen.src, r.sku, r.chosen.qty); delete S.edits[key]; S.invalidate();
