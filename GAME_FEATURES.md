@@ -218,7 +218,7 @@ Xây từ cấp 1 (8 tr, 50k/ngày); sofa, bàn, máy cà phê, locker, bảng c
 |---|---|
 | Nhân viên xin nghỉ phép / nghỉ ốm | Duyệt hoặc từ chối. |
 | Khách bỏ cọc | Giữ tiền cọc; hàng đã nhập nằm lại kho (có thể bán xả). |
-| **Khách quịt tiền** (COD) | Chuyển vào tab **Công nợ khó đòi**: *Tự đòi* / **Báo cáo phường** (phí 200k, 3–7 ngày xử lý; có hóa đơn đầy đủ và kế toán thì dễ thành công) / *Xóa nợ*. Khách quịt vào danh sách đen. |
+| **Khách quịt tiền** (COD) | Chuyển vào tab **Công nợ khó đòi**: *Tự đòi* / **Báo cáo phường** (phí 200k, 3–7 ngày xử lý; có hóa đơn đầy đủ và kế toán thì dễ thành công) / *Xóa nợ*. Khách quịt vào danh sách đen; **đơn ship tiếp theo của họ không tự đặt ship mà phải người chơi duyệt (hoặc từ chối)** ở tab Giao hàng. |
 | **Đoàn quản lý thị trường / thuế kiểm tra** | Kiểm tra hóa đơn đầu vào (hàng không hóa đơn tồn kho), sổ sách (kế toán giảm rủi ro), niêm yết giá, hàng giả. Kết quả: Đạt / Nhắc nhở / Phạt / Tịch thu lô hàng; xin gia hạn 3 ngày (cần kế toán). Cửa hàng đóng cửa ~90 phút. |
 | Lô hàng lỗi · Mất điện · KOL ghé review · Nhà cung cấp tăng giá | Có lựa chọn xử lý và hậu quả. |
 | Họp / mâu thuẫn nhân viên, bỏ ca, xin nghỉ việc | Xem mục 8.3. |

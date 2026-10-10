@@ -42,11 +42,13 @@
     },
     newOrder: function (spec) {
       var s = G.state, vol = 0; spec.items.forEach(function (i) { vol += G.skus[i.sku].vol * i.qty; });
-      return { id: s.shipping.nextId++, day: s.day, createdMin: SH.now(), items: spec.items, rev: spec.rev, cogs: spec.cogs, vol: vol, cod: spec.cod, paid: false, carrier: null, fee: 0, status: 'Chờ đặt',
-        cust: { name: spec.name || (G.pick(G.data.lastNames) + ' ' + G.pick(G.data.firstNames)), tol: spec.tol || 1, black: !!spec.black }, late: false, damaged: false, note: spec.note || '', source: spec.source || 'online', urgent: spec.urgent != null ? spec.urgent : G.chance(0.15) };
+      var nm = spec.name || (G.pick(G.data.lastNames) + ' ' + G.pick(G.data.firstNames)), ev = s.events, blk = !!spec.black || !!(ev && ev.black && ev.black.indexOf(nm) >= 0);
+      return { id: s.shipping.nextId++, day: s.day, createdMin: SH.now(), needApproval: blk && !spec.special, items: spec.items, rev: spec.rev, cogs: spec.cogs, vol: vol, cod: spec.cod, paid: false, carrier: null, fee: 0, status: 'Chờ đặt',
+        cust: { name: nm, tol: spec.tol || 1, black: blk }, late: false, damaged: false, note: spec.note || '', source: spec.source || 'online', urgent: spec.urgent != null ? spec.urgent : G.chance(0.15) };
     },
     autoBook: function (o) {
       var s = G.state, a = s.shipping.auto;
+      if (o.needApproval) { G.notify.push({ title: 'Đơn của khách quịt nợ #' + o.id, text: G.esc(o.cust.name) + ' nằm trong danh sách đen. Vào tab Giao hàng để duyệt hoặc từ chối đơn.', type: 'warn', sound: 'warn' }); return; }
       if (!a) { G.notify.push({ title: 'Đơn giao mới #' + o.id, text: (SH.sameDayOk() ? 'Đặt ship trước 17h để giao trong ngày.' : 'Đã quá 17h: giao sáng mai (hoặc chọn hỏa tốc tới 20h).') + ' Vào tab Giao hàng.', type: 'info', sound: false }); return; }
       if (o.urgent && SH.expressOk()) { var r = SH.book(o.id, 'express', true, { payExp: G.state.shipping.expPay !== false }); if (r.ok) return; }
       var r2 = SH.book(o.id, a === 'express' ? (SH.expressOk() ? 'express' : 'grap') : a, true); if (!r2.ok && a !== 'ghtk') SH.book(o.id, 'ghtk', true);
@@ -108,6 +110,7 @@
       var s = G.state, o = SH.byId(id), car = G.carrierById[carrierId]; opts = opts || {};
       if (!o || !car) return { ok: false, msg: 'Đơn không hợp lệ' };
       if (o.status !== 'Chờ đặt') return { ok: false, msg: 'Đơn đã được đặt' };
+      if (o.needApproval) return { ok: false, msg: 'Khách quịt nợ: cần duyệt đơn trước khi đặt ship' };
       var now = SH.now(), express = !!car.express, queue = !express && now >= CUT, fee = car.own ? 0 : SH.fee(car, o.vol);
       if (express && !SH.expressOk()) return { ok: false, msg: 'Hỏa tốc chỉ nhận đến 20h' };
       var plan = null;
@@ -123,6 +126,16 @@
       if (!o.cod && !o.paid) { G.econ.income(o.rev, 'sales'); o.paid = true; }
       if (!quiet) G.notify.toast('Đã đặt ' + G.esc(car.name) + ' cho đơn #' + o.id + ' · ' + G.esc(SH.etaText(o)), 'good');
       return { ok: true, msg: 'Đã đặt ' + car.name + (fee ? ' (phí ' + G.fmt.vnd(fee) + (o.expPaid ? ', khách trả' : '') + ')' : '') + ' · ' + SH.etaText(o) };
+    },
+    approve: function (id) {
+      var o = SH.byId(id); if (!o || o.status !== 'Chờ đặt' || !o.needApproval) return { ok: false, msg: 'Không hợp lệ' };
+      o.needApproval = false; o.approved = true; SH.autoBook(o);
+      return { ok: true, msg: 'Đã duyệt đơn #' + o.id + (o.status === 'Chờ đặt' ? ', hãy chọn đơn vị vận chuyển' : '') };
+    },
+    reject: function (id) {
+      var o = SH.byId(id); if (!o || o.status !== 'Chờ đặt' || !o.needApproval) return { ok: false, msg: 'Không hợp lệ' };
+      o.needApproval = false; o.status = 'Hủy'; o.note = 'Shop từ chối giao cho khách quịt nợ'; SH.giveBack(o);
+      return { ok: true, msg: 'Đã từ chối đơn #' + o.id };
     },
     toggleCod: function (id) { var o = SH.byId(id); if (o && o.status === 'Chờ đặt') o.cod = !o.cod; },
     // đơn xếp hàng "giao sáng mai": lên lịch ngay khi sang ngày (giai đoạn chuẩn bị)

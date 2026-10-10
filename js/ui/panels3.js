@@ -64,6 +64,7 @@
     wait.forEach(function (o) {
       h += '<div class="card small ordcard">' + grid(o.items) + '<b>#' + o.id + '</b> · ' + E(o.cust.name) + ' · ' + F.vnd(o.rev) + (o.source === 'live' ? ' <span class="chipx st-go">🔴 live</span>' : o.special ? ' <span class="chipx st-ok">đặt riêng</span>' : '') + (o.urgent ? ' <span class="chipx st-go">cần gấp</span>' : '') + '<br><span class="muted">khối lượng ' + o.vol + ' · hạn đặt ngày ' + (o.day + 2) + '</span>' +
         '<div class="row"><label class="nw"><input type="checkbox" data-chg="shipCod" data-id="' + o.id + '"' + (o.cod ? ' checked' : '') + '> COD (thu khi giao, rủi ro khách không nhận)</label></div>';
+      if (o.needApproval) { h += '<div class="row small"><span class="chipx neg">⚠ Khách quịt nợ</span> <button class="mini primary" data-act="shipApprove" data-id="' + o.id + '">Duyệt giao</button> <button class="mini" data-act="shipReject" data-id="' + o.id + '">Từ chối</button></div></div>'; return; }
       G.data.carriers.forEach(function (c) {
         if (c.express && !sh.expressOn) return;
         var pv = SH.preview(o, c.id);
@@ -90,6 +91,8 @@
   P.chg.shipExpPay = function (el) { G.state.shipping.expPay = el.checked; };
   P.chg.shipCod = function (el) { G.shipping.toggleCod(+el.dataset.id); };
   P.act.shipBook = function (el) { res(G.shipping.book(+el.dataset.id, el.dataset.c, false, { payExp: G.state.shipping.expPay !== false })); };
+  P.act.shipApprove = function (el) { res(G.shipping.approve(+el.dataset.id)); };
+  P.act.shipReject = function (el) { res(G.shipping.reject(+el.dataset.id)); };
   P.act.spAccept = function (el) { res(G.deposits.accept(+el.dataset.id)); };
   P.act.spReject = function (el) { G.deposits.reject(+el.dataset.id); };
   P.act.spHold = function (el) { res(G.deposits.hold(+el.dataset.id)); };
