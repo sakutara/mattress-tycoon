@@ -11,6 +11,8 @@
     var dist = [0, 0, 0, 0, 0, 0]; list.forEach(function (x) { dist[x.rating]++; });
     h += '<div class="card"><div style="font-size:26px;color:#ffc107"><b>' + R.avg().toFixed(2) + '</b> ★</div><div class="small muted">Lượng khách/giờ = khách cơ bản × (★ / 3) = ×' + (R.avg() / 3).toFixed(2) + '. Tỉ lệ phản hồi: ' + Math.round(R.replyRate() * 100) + '% (tăng nhẹ tỉ lệ chốt đơn).</div>' +
       [5, 4, 3, 2, 1].map(function (r) { return '<div class="rel"><span>' + r + '★</span>' + bar(list.length ? dist[r] / list.length : 0, r >= 4 ? 'good' : r <= 2 ? 'bad' : '') + '<span class="small">' + dist[r] + '</span></div>'; }).join('') + '</div>';
+    var cs = G.staff.count('cskh');
+    h += '<div class="card small"><label class="nw"><input type="checkbox" data-chg="rvAuto"' + (s.revs.auto ? ' checked' : '') + '> CSKH tự phản hồi đánh giá</label><div class="muted">Mỗi ngày CSKH trả lời tối đa <b>' + R.cskhCap() + '</b> đánh giá (ưu tiên ★ thấp): ★4-5 cảm ơn, ★3 giải thích. <b>Đánh giá 1-2★ do bạn tự trả lời.</b> Sao càng cao càng xử lý được nhiều.</div>' + (cs ? '' : '<div class="warn">Chưa có nhân viên CSKH: thuê ở tab Nhân viên.</div>') + '</div>';
     var un = R.unanswered();
     h += '<h4>Chờ phản hồi (' + un.length + ')</h4>';
     if (!un.length) h += '<p class="muted small">Không có đánh giá nào chờ phản hồi.</p>';
@@ -21,10 +23,11 @@
         '<div class="row"><input type="text" style="flex:1;min-width:0" placeholder="Hoặc tự viết phản hồi..." data-chg="rvText" data-id="' + rv.id + '" value="' + E(UI.st.revText[rv.id] || '') + '"><button class="mini primary" data-act="rvSend" data-id="' + rv.id + '">Gửi</button></div></div>';
     });
     var done = list.filter(function (x) { return x.replied; }).slice(0, 6);
-    if (done.length) h += '<h4>Đã phản hồi</h4>' + done.map(function (rv) { return '<div class="card small">' + stars(rv.rating) + (rv.upgraded ? ' <span class="chipx st-ok">đã nâng ★</span>' : '') + ' ' + E(rv.text) + '<div class="muted">↳ ' + E(rv.reply || '') + '</div></div>'; }).join('');
+    if (done.length) h += '<h4>Đã phản hồi</h4>' + done.map(function (rv) { return '<div class="card small">' + stars(rv.rating) + (rv.upgraded ? ' <span class="chipx st-ok">đã nâng ★</span>' : '') + (rv.auto ? ' <span class="chipx">CSKH</span>' : '') + ' ' + E(rv.text) + '<div class="muted">↳ ' + E(rv.reply || '') + '</div></div>'; }).join('');
     return h;
   }
   P.act.rvReply = function (el) { res(G.reviews.reply(+el.dataset.id, el.dataset.t)); };
+  P.chg.rvAuto = function (el) { G.state.revs.auto = el.checked; };
   P.chg.rvText = function (el) { UI.st.revText[el.dataset.id] = el.value; };
   P.act.rvSend = function (el) { var id = +el.dataset.id, inp = document.querySelector('[data-chg="rvText"][data-id="' + id + '"]'); var t = inp ? inp.value : UI.st.revText[id]; var r = G.reviews.reply(id, 'thanks', t || ''); if (!t) r = { ok: false, msg: 'Hãy nhập nội dung phản hồi' }; res(r); if (r.ok) delete UI.st.revText[id]; };
 

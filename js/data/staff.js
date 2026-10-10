@@ -10,7 +10,7 @@
     { id: 'warehouse', name: 'Thủ kho', color: '#8d6e63', salary: 8000000, unlock: 0, desc: 'Tự bổ sung kệ từ kho, kiểm hàng tốt hơn, gợi ý & tự động đặt hàng.' },
     { id: 'delivery', name: 'Giao hàng / lắp đặt', color: '#ffa726', salary: 8000000, unlock: 0, desc: 'Cần cho đơn lớn & giao tận nhà: tự giao đơn của khách trong ngày theo lịch chuyến, miễn phí ship.' },
     { id: 'marketing', name: 'Marketing', color: '#ec407a', salary: 9000000, unlock: 0, desc: 'Tăng lượng khách, chạy chiến dịch.' },
-    { id: 'cskh', name: 'Chăm sóc khách hàng', color: '#26C6DA', salary: 7500000, unlock: 0, desc: 'Xử lý bảo hành / đổi trả: tự duyệt các ca rõ ràng theo chính sách, chuyển ca khó cho chủ, giảm ca gian lận.' },
+    { id: 'cskh', name: 'Chăm sóc khách hàng', color: '#26C6DA', salary: 7500000, unlock: 0, desc: 'Xử lý bảo hành / đổi trả: tự duyệt các ca rõ ràng theo chính sách, chuyển ca khó cho chủ, giảm ca gian lận. Tự phản hồi đánh giá của khách mỗi ngày.' },
     { id: 'manager', name: 'Quản lý cửa hàng', color: '#ef5350', salary: 18000000, unlock: 0, desc: 'Buff toàn bộ NV, tự động chia ca, cần cho chi nhánh.' }
   ];
   G.roleById = {};

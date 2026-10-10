@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var G = window.G;
-  G.addDefaults({ revs: { list: [], nextId: 1, answered: 0, total: 0 }, events: { fakeReports: 0 } });
+  G.addDefaults({ revs: { list: [], nextId: 1, answered: 0, total: 0, auto: true }, events: { fakeReports: 0 } });
   var NEG = {
     late: ['Giao hàng trễ hơn hẹn cả mấy ngày, hỏi mãi mới có tin.', 'Đặt ship mà chờ hoài, mất cả tuần mới nhận được hàng.'],
     damaged: ['Hàng tới nơi bị móp méo, đóng gói ẩu quá.', 'Nhận hàng bị hư hại, thất vọng.'],
@@ -88,8 +88,23 @@
     }
   };
   G.conversionMods.push(function () { return 1 + 0.08 * RV.replyRate(); });
+  // CSKH tự phản hồi đánh giá ★3-5: ★4-5 cảm ơn, ★3 giải thích. ★1-2 để người chơi tự xử lý. Không bao giờ phản bác.
+  RV.cskhCap = function () { var t = 0; G.staff.byRole('cskh').forEach(function (x) { if (x.status === 'ok') t += 3 + 2 * x.stars; }); return t; };
+  RV.autoReply = function () {
+    var s = G.state; if (!s.revs.auto) return 0;
+    var cap = RV.cskhCap(), n = 0; if (!cap) return 0;
+    var cs = G.staff.byRole('cskh').filter(function (x) { return x.status === 'ok'; });
+    RV.unanswered().filter(function (x) { return x.rating >= 3; }).sort(function (a, b) { return a.rating - b.rating; }).forEach(function (rv) {
+      if (n >= cap) return;
+      var t = rv.rating >= 4 ? 'thanks' : 'explain';
+      var r = RV.reply(rv.id, t); if (!r.ok) return; rv.auto = true; n++;
+    });
+    if (n) cs.forEach(function (x) { G.staff.addXp(x, Math.ceil(n / cs.length)); });
+    return n;
+  };
   G.on('dayStart', function () {
-    var s = G.state, n = 0;
+    var s = G.state, n = 0, auto = RV.autoReply();
+    if (auto) G.notify.push({ title: '💬 CSKH đã phản hồi ' + auto + ' đánh giá', text: 'Nhân viên chăm sóc khách hàng tự trả lời đánh giá của khách.', type: 'good', sound: false, toast: false });
     s.revs.list.forEach(function (rv) {
       if (!rv.replied && !rv.penalized && s.day - rv.day > 3 && rv.rating <= 3) { rv.penalized = true; n++; s.revs.total++; }
     });
