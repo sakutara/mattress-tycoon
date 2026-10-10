@@ -8,7 +8,7 @@
   // ---- 1 thẻ gợi ý ----
   function sugCard(r, hp) {
     var h = '', c = r.chosen;
-      h += '<div class="card small sugcard"><div class="irow">' + UI.itemTile({ sku: r.sku, qty: c.qty, sub: F.short(c.cash) }) + '<div style="min-width:0"><b>' + E(r.label) + '</b> ' + G.life.badge(r.stage) + ' ' + r.tags.map(function (t) { return '<span class="chipx ' + (t === 'Sắp hết' || t === 'Hết hàng' || t === 'Đơn đang mở' || t === 'Đơn cọc' || t === 'Khách hỏi hết hàng' ? 'neg' : t === 'Mẫu mới' ? 'st-go' : 'st-ok') + '">' + t + '</span>'; }).join(' ') + (r.edited ? ' <span class="chipx">đã sửa</span>' : '') + '</div></div>' +
+      h += '<div class="card small sugcard"><div style="min-width:0"><b>' + E(r.label) + '</b> ' + G.life.badge(r.stage) + ' ' + r.tags.map(function (t) { return '<span class="chipx ' + (t === 'Sắp hết' || t === 'Hết hàng' || t === 'Đơn đang mở' || t === 'Đơn cọc' || t === 'Khách hỏi hết hàng' ? 'neg' : t === 'Mẫu mới' ? 'st-go' : 'st-ok') + '">' + t + '</span>'; }).join(' ') + (r.edited ? ' <span class="chipx">đã sửa</span>' : '') + '</div>' +
         '<div class="muted">Tồn+đang về: <b>' + r.have + '</b>' + (hp && r.vel ? ' · bán ~' + r.vel.toFixed(1) + '/ngày · còn ~' + (r.daysLeft > 90 ? '∞' : r.daysLeft.toFixed(1)) + ' ngày' : '') + (r.commit ? ' · đơn mở cần ' + r.commit : '') + '</div>' +
         '<div class="row"><label>SL <input type="number" class="qty" min="1" data-chg="sugQty" data-key="' + E(r.key) + '" value="' + c.qty + '"></label>' +
         '<select data-chg="sugSrc" data-key="' + E(r.key) + '">' + r.opts.filter(function (o) { return o.usable && !o.locked; }).map(function (o) { return '<option value="' + o.src + '"' + (o.src === c.src ? ' selected' : '') + '>' + E(o.name) + (o.src === r.best.src ? ' ★ gợi ý' : '') + '</option>'; }).join('') + '</select></div>' +
@@ -32,7 +32,7 @@
     if (!r.cust || !r.cust.orders.length) return '';
     return '<div class="custline">' + r.cust.orders.slice(0, 3).map(function (o) { return '<span class="chipx ' + (o.left <= 2 ? 'neg' : 'st-go') + '">' + (o.type === 'dep' ? G.icon('gift', 10) + ' ' + E(o.name) + ' · cọc ' + F.short(o.deposit) + ' · hạn ngày ' + o.due + ' (còn ' + Math.max(0, o.left) + ' ngày)' : o.type === 'b2b' ? 'B2B ' + E(o.name) + ' · hạn ngày ' + o.due + ' (còn ' + Math.max(0, o.left) + ' ngày)' : G.icon('live', 10) + ' ' + E(o.name)) + '</span>'; }).join(' ') + (r.lateRisk ? ' <span class="chipx neg">nhập thường có thể trễ hạn</span>' : '') + '</div>';
   }
-  UI.st.sug = UI.st.sug || { f: 'all', brand: '', more: false, collapsed: {}, exp: {} };
+  UI.st.sug = UI.st.sug || { more: false, collapsed: {}, exp: {} };
   UI.sugHtml = function () {
     var C = SG.compute(), rows = C.rows, hp = C.helper, st = UI.st.sug, all = rows.filter(function (r) { return r.action === 'order'; }), clears = rows.filter(function (r) { return r.action === 'clear'; });
     var tc = SG.tierCounts(), meaningful = all.filter(function (r) { return r.tier <= 3; }), inB = all.filter(function (r) { return r.inBatch; }).length, tot = 0; meaningful.forEach(function (r) { tot += r.chosen.cash; });
@@ -42,15 +42,12 @@
     if (!rows.length) return h + '<p class="muted small">Chưa có gợi ý nào - kho và kệ đang ổn.</p>';
     // một chạm: đặt tất cả đơn khách
     if (tc[1]) { var pl = SG.tier1(); h += '<div class="card sugbox"><b>' + G.icon('gift', 16) + ' Đơn khách (' + pl.rows.length + ' mặt hàng · ' + F.short(pl.total) + ')</b><div class="small">' + Object.keys(pl.groups).map(function (k) { var g = pl.groups[k]; return E(G.srcById[g.src].name) + (g.express ? ' ⚡' : '') + ': ' + F.short(g.total); }).join(' · ') + (pl.xN ? ' · ' + pl.xN + ' món dùng ⚡ lấy ngay để kịp hạn' : '') + '</div>' + (pl.late ? '<div class="neg small">' + G.icon('warn', 12) + ' ' + pl.late + ' món vẫn có thể trễ hạn (không còn lượt ⚡)</div>' : '<div class="pos small">' + G.icon('check', 12) + ' Kịp hạn các đơn khách</div>') + '<button class="btn primary" data-act="sugTier1">Thêm đơn khách vào giỏ</button></div>'; }
-    if (all.length) h += '<div class="chips">' + [['all', 'Tất cả'], ['cust', 'Đơn khách (' + tc[1] + ')'], ['out', 'Hết hàng (' + (tc[2] + tc[3]) + ')'], ['season', 'Mùa vụ (' + tc[5] + ')'], ['new', 'Mẫu mới (' + tc[6] + ')']].map(function (x) { return '<button class="chip' + (st.f === x[0] ? ' on' : '') + '" data-act="sugF" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>';
-    var brands = {}; all.forEach(function (r) { brands[G.skus[r.sku].brand] = 1; });
-    if (Object.keys(brands).length > 1) h += '<div class="row"><select data-chg="sugBrand"><option value="">Mọi hãng</option>' + Object.keys(brands).map(function (b) { return '<option value="' + b + '"' + (st.brand === b ? ' selected' : '') + '>' + E(G.brandName(b)) + '</option>'; }).join('') + '</select></div>';
-    var vis = all.filter(function (r) { if (r.inBatch) return false; if (st.brand && G.skus[r.sku].brand !== st.brand) return false; return st.f === 'all' || (st.f === 'cust' && r.tier === 1) || (st.f === 'out' && (r.tier === 2 || r.tier === 3)) || (st.f === 'season' && r.tier === 5) || (st.f === 'new' && r.tier === 6); });
+    var vis = all.filter(function (r) { return !r.inBatch; });
     var budget = 12, shownN = 0, hidden = 0, tiersHtml = '';
     for (var t = 1; t <= 6; t++) {
       var list = vis.filter(function (r) { return r.tier === t; }); if (!list.length) continue;
       var limit = t === 1 ? 999 : t <= 3 ? Math.max(3, budget - shownN) : t === 4 ? 5 : 0;
-      if (st.f !== 'all') limit = 999; if (st.more) limit = 999;
+      if (st.more) limit = 999;
       var take = list.slice(0, limit), rest = list.length - take.length; if (rest > 0) hidden += rest; if (!take.length) { hidden += 0; continue; }
       shownN += take.length; var col = st.collapsed[t];
       var qty = 0; list.forEach(function (r) { qty += r.chosen.qty; });
@@ -65,12 +62,12 @@
         tiersHtml += '<details class="det sugdet" data-key="sg_' + t + k + '"' + (st.exp[t + k] ? ' open' : '') + '><summary data-act="sugExp" data-v="' + E(t + k) + '"><b>' + E(G.brandName(ln.brand) + ' ' + ln.baseName) + '</b> · ' + (nl > 1 ? nl + ' màu' : g.length + ' cỡ') + ' · cần <b>' + sumq + '</b> · ~' + F.short(cash) + '</summary>' + g.map(function (r) { return custLine(r) + sugCard(r, hp); }).join('') + '</details>';
       });
     }
-    h += tiersHtml || '<p class="muted small">Không có gợi ý phù hợp bộ lọc.</p>';
+    h += tiersHtml || '<p class="muted small">Không có gợi ý nào.</p>';
     if (hidden > 0 || (!st.more && vis.length > shownN)) h += '<button class="btn" data-act="sugMore">Xem thêm (' + Math.max(hidden, vis.length - shownN) + ')</button>'; else if (st.more) h += '<button class="btn" data-act="sugMore">Thu gọn</button>';
     if (clears.length) {
       h += '<h4>Nên xả hàng (không nhập thêm)</h4>';
       clears.slice(0, 6).forEach(function (r) {
-        h += '<div class="card small"><div class="irow">' + UI.itemTile({ sku: r.sku, qty: r.have }) + '<div style="min-width:0"><b>' + E(r.label) + '</b> ' + G.life.badge(r.stage) + ' <span class="chipx neg">' + r.tags[0] + '</span><div class="muted">Còn ' + r.have + ' · ' + E(r.why) + '</div></div></div><div class="row"><button class="mini primary" data-act="sugClear" data-key="' + E(r.key) + '">' + (r.pct > 0 ? 'Giảm ' + Math.round(r.pct * 100) + '%' : 'Bán sỉ đầu nậu') + '</button></div></div>';
+        h += '<div class="card small"><div style="min-width:0"><b>' + E(r.label) + '</b> ' + G.life.badge(r.stage) + ' <span class="chipx neg">' + r.tags[0] + '</span><div class="muted">Còn ' + r.have + ' · ' + E(r.why) + '</div></div><div class="row"><button class="mini primary" data-act="sugClear" data-key="' + E(r.key) + '">' + (r.pct > 0 ? 'Giảm ' + Math.round(r.pct * 100) + '%' : 'Bán sỉ đầu nậu') + '</button></div></div>';
       });
     }
     return h;
@@ -100,14 +97,12 @@
     h += '<div class="row"><button class="btn primary" data-act="cartPlaceAll">Đặt tất cả (' + srcs.length + ' đơn · ' + F.short(all.total) + ')</button><button class="btn" data-act="clearCart">Xóa cả giỏ</button>' + (s.lastOrder ? '<button class="btn" data-act="reorder">Nhập lại như lần trước</button>' : '') + '</div></div>';
     return h;
   };
-  P.act.sugF = function (el) { UI.st.sug.f = el.dataset.v; UI.st.sug.more = false; };
   P.act.sugMore = function () { UI.st.sug.more = !UI.st.sug.more; };
   P.act.sugCol = function (el) { var c = UI.st.sug.collapsed; c[el.dataset.v] = !c[el.dataset.v]; };
   P.act.sugExp = function (el) { var e = UI.st.sug.exp; e[el.dataset.v] = !e[el.dataset.v]; };
   P.act.sugDismiss = function (el) { SG.removeCart(el.dataset.key); };
   P.act.sugCartAdd = function (el) { SG.addCart(el.dataset.key); };
   P.act.sugTier1 = function () { res(SG.addTier1()); };
-  P.chg.sugBrand = function (el) { UI.st.sug.brand = el.value; };
   P.chg.sugQty = function (el) { SG.setEdit(el.dataset.key, { qty: Math.max(1, Math.floor(+el.value || 1)) }); };
   P.chg.sugSrc = function (el) { SG.setEdit(el.dataset.key, { src: el.value }); };
   P.act.sugOrder = function (el) { res(SG.order(el.dataset.key)); };
