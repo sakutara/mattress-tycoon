@@ -1,4 +1,4 @@
-/* Họp nhân viên hằng tuần: nghe ý kiến, giải quyết khiếu nại & mâu thuẫn. Tính cách, quan hệ từng cặp NV, chương trình họp tự sinh từ dữ liệu game, hiệu ứng tinh thần / nghỉ việc / bức xúc. */
+/* Họp nhân viên mỗi tháng: nghe ý kiến, giải quyết khiếu nại & mâu thuẫn. Tính cách, quan hệ từng cặp NV, chương trình họp tự sinh từ dữ liệu game, hiệu ứng tinh thần / nghỉ việc / bức xúc. */
 (function () {
   'use strict';
   var G = window.G;
@@ -10,13 +10,15 @@
     hethang: { kind: 'idea', name: 'Khách hỏi mẫu hết hàng', icon: 'box' }, doimau: { kind: 'idea', name: 'Đổi mẫu trưng bày', icon: 'shop' }, phongnghi: { kind: 'idea', name: 'Xin phòng nghỉ nhân viên', icon: 'cup' }, maylanh: { kind: 'idea', name: 'Xin máy lạnh / quạt', icon: 'cloud' },
     giamgia: { kind: 'idea', name: 'Đề xuất chương trình giảm giá', icon: 'tag' }, training: { kind: 'idea', name: 'Xin đi đào tạo', icon: 'book' }, phanmem: { kind: 'idea', name: 'Nâng cấp phần mềm quản lý', icon: 'chart' },
     baohanh: { kind: 'issue', name: 'Yêu cầu bảo hành tồn đọng', icon: 'shield' }, dontre: { kind: 'issue', name: 'Đơn giao trễ', icon: 'truck' }, danhgia: { kind: 'issue', name: 'Đánh giá xấu chưa phản hồi', icon: 'star' },
-    conflict: { kind: 'conflict', name: 'Mâu thuẫn giữa 2 nhân viên', icon: 'cross' }, followup: { kind: 'followup', name: 'Việc đã hứa tuần trước', icon: 'check' }
+    conflict: { kind: 'conflict', name: 'Mâu thuẫn giữa 2 nhân viên', icon: 'cross' }, followup: { kind: 'followup', name: 'Việc đã hứa kỳ họp trước', icon: 'check' }
   };
   var CAUSES = ['tranh khách / hoa hồng', 'phân công công việc', 'tính cách không hợp', 'lời nói khó nghe', 'đổ lỗi cho nhau'];
   var M = G.meeting = {
     TRAITS: TRAITS, TOPICS: TOPICS,
     st: function () { return G.state.meeting; },
     nextWeekday: function (from) { var m = M.st(), d = from; for (var i = 0; i < 8; i++, d++) if (G.cal.weekday(d) === m.weekday) return d; return from + 7; },
+    monthStart: function (d) { return Math.floor((d - 1) / 30) * 30 + 1; },
+    nextMeet: function (d) { return M.nextWeekday(M.monthStart(d) + 30); },
     trait: function (id) { return M.st().traits[id]; },
     staffName: function (id) { var x = G.staff.byId(+id); return x ? x.name : '?'; },
     mgrStars: function () { return G.staff.bestStars('manager'); },
@@ -76,8 +78,8 @@
       var m = M.st(), s = G.state; if (!m.due && !silent) return { ok: false, msg: 'Chưa tới ngày họp' };
       m.skipped++; m.grievance = Math.min(100, m.grievance + 8); s.staff.forEach(function (x) { x.sat = Math.max(0, x.sat - 3); m.trust[x.id] = Math.max(0, (m.trust[x.id] || 50) - 2); });
       m.history.unshift({ id: m.nextId++, day: s.day, week: m.week + 1, skipped: true, items: [], text: 'Bỏ họp - bức xúc +8' }); if (m.history.length > 12) m.history.pop();
-      m.due = false; m.postponed = false; m.held = false; m.nextDay = M.nextWeekday(s.day + 1); m.week++;
-      return { ok: true, msg: 'Đã bỏ họp tuần này (nhân viên bức xúc)' };
+      m.due = false; m.postponed = false; m.held = false; m.nextDay = M.nextMeet(s.day); m.week++;
+      return { ok: true, msg: 'Đã bỏ họp tháng này (nhân viên bức xúc)' };
     },
     // ---------- chương trình họp ----------
     pickBy: function (role) { var s = G.state, l = s.staff.filter(function (x) { return x.status !== 'leave' && (!role || x.role === role); }); return l.length ? G.pick(l) : null; },
@@ -120,7 +122,7 @@
       // khách hỏi hết hàng (mất đơn)
       var lost = {}; s.lostLog.forEach(function (e) { if (s.day - e.day <= 7) lost[e.sku] = (lost[e.sku] || 0) + (e.n || 1); });
       var topLost = Object.keys(lost).sort(function (a, b) { return lost[b] - lost[a]; })[0];
-      if (topLost && lost[topLost] >= 2) { var sp = M.pickBy('warehouse') || M.pickBy('sales'); add('hethang', sp, 40 + lost[topLost] * 8, ['mất ' + lost[topLost] + ' đơn / tuần', G.sprites.codeOf(topLost)], { n: lost[topLost], code: G.sprites.codeOf(topLost), sku: topLost }); }
+      if (topLost && lost[topLost] >= 2) { var sp = M.pickBy('warehouse') || M.pickBy('sales'); add('hethang', sp, 40 + lost[topLost] * 8, ['mất ' + lost[topLost] + ' đơn / 7 ngày', G.sprites.codeOf(topLost)], { n: lost[topLost], code: G.sprites.codeOf(topLost), sku: topLost }); }
       if (G.weather && (G.weather.cur().t === 'nong' || G.weather.cur().t === 'ret') && !G.decor.placed().some(function (x) { return x.id === 'ac'; })) add('moitruong', M.pickBy(), 35, ['thời tiết ' + G.weather.def().name.toLowerCase()], { w: G.weather.cur().t === 'nong' ? 'nóng' : 'lạnh' });
       if (s.level >= 1 && !s.staffroom.built) add('phongnghi', M.pickBy(), 28, ['chưa có phòng NV'], {});
       if (G.weather && G.weather.cur().t === 'nong' && !G.decor.placed().some(function (x) { return x.id === 'ac'; })) add('maylanh', M.pickBy(), 30, ['nắng nóng ' + G.weather.cur().temp + '°'], { w: 'nóng' });
@@ -146,18 +148,18 @@
       function ch(id, label, desc, cost) { c.push({ id: id, label: label, desc: desc, cost: cost || 0 }); }
       var st = G.staff.byId(it.who[0]), sal = st ? st.salary : 0;
       switch (it.topic) {
-        case 'luong': ch('raise', 'Tăng lương 8%', '+15 hài lòng, tốn ' + G.fmt.short(Math.round(sal * 0.08)) + '/tháng', 0); ch('bonus', 'Thưởng nóng', '+12 hài lòng, tốn ' + G.fmt.short(Math.round(sal * 0.5)), Math.round(sal * 0.5)); ch('neg', 'Thương lượng / giải thích', 'Có thể thành công, tùy tính cách & quản lý'); ch('later', 'Hứa xem xét tuần sau', '+3 hài lòng, nhưng phải thực hiện'); ch('refuse', 'Từ chối', '−8 hài lòng, tiết kiệm'); break;
+        case 'luong': ch('raise', 'Tăng lương 8%', '+15 hài lòng, tốn ' + G.fmt.short(Math.round(sal * 0.08)) + '/tháng', 0); ch('bonus', 'Thưởng nóng', '+12 hài lòng, tốn ' + G.fmt.short(Math.round(sal * 0.5)), Math.round(sal * 0.5)); ch('neg', 'Thương lượng / giải thích', 'Có thể thành công, tùy tính cách & quản lý'); ch('later', 'Hứa xem xét kỳ họp sau', '+3 hài lòng, nhưng phải thực hiện'); ch('refuse', 'Từ chối', '−8 hài lòng, tiết kiệm'); break;
         case 'ca': ch('dayoff', 'Cho nghỉ bù ngày mai', '+8 hài lòng, giảm mệt, thiếu người 1 ngày'); ch('shift', 'Điều chỉnh ca ngay', 'Giảm số ca liên tiếp, +6 hài lòng'); ch('neg', 'Giải thích tình hình', 'Có thể được thông cảm'); ch('later', 'Hứa sắp xếp lại', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−8 hài lòng'); break;
-        case 'thieu': ch('hire', 'Hứa tuyển thêm người bán', '+6 hài lòng, phải tuyển trước tuần sau'); ch('neg', 'Giải thích / xin cố gắng', 'Có thể được thông cảm'); ch('later', 'Hứa xử lý sau', '+3 hài lòng'); ch('refuse', 'Từ chối', '−8 hài lòng'); break;
+        case 'thieu': ch('hire', 'Hứa tuyển thêm người bán', '+6 hài lòng, phải tuyển trước kỳ họp sau'); ch('neg', 'Giải thích / xin cố gắng', 'Có thể được thông cảm'); ch('later', 'Hứa xử lý sau', '+3 hài lòng'); ch('refuse', 'Từ chối', '−8 hài lòng'); break;
         case 'khachkho': case 'danhgia': case 'baohanh': case 'dontre': ch('train', 'Cho đi đào tạo kỹ năng', 'Tốn ' + G.fmt.short(1500000) + ', +8 hài lòng, +XP', 1500000); ch('neg', 'Hướng dẫn cách xử lý', 'Có thể thành công'); ch('later', 'Hứa hỗ trợ thêm', '+3 hài lòng, phải thực hiện'); ch('crit', 'Phê bình', 'Rủi ro: −6 hài lòng'); break;
         case 'moitruong': case 'maylanh': ch('fan', 'Mua quạt / đồ dùng ngay', 'Tốn ' + G.fmt.short(2000000) + ', +10 hài lòng', 2000000); ch('neg', 'Giải thích sẽ cải thiện dần', 'Có thể thành công'); ch('later', 'Hứa xử lý sau', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−8 hài lòng'); break;
         case 'phongnghi': ch('room', s0().staffroom.built ? 'Mua thêm đồ phòng nghỉ' : 'Xây phòng nhân viên', 'Tốn ' + G.fmt.short(s0().staffroom.built ? 6e6 : G.staffroom.BUILD_COST) + ', +12 hài lòng', s0().staffroom.built ? 6e6 : G.staffroom.BUILD_COST); ch('neg', 'Giải thích ngân sách', 'Có thể được thông cảm'); ch('later', 'Hứa xây khi có điều kiện', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−8 hài lòng'); break;
         case 'thuong': ch('bonus', 'Thưởng nóng cân bằng', 'Tốn ' + G.fmt.short(Math.round(sal * 0.5)), Math.round(sal * 0.5)); ch('raise', 'Tăng lương 8%', 'Tốn thêm ' + G.fmt.short(Math.round(sal * 0.08)) + '/tháng'); ch('neg', 'Giải thích tiêu chí lương', 'Có thể thành công'); ch('refuse', 'Từ chối', '−8 hài lòng'); break;
-        case 'hethang': ch('order', 'Giao Thủ kho nhập ngay', 'Ghi nhận vào danh sách mua của Thủ kho, +10 hài lòng'); ch('neg', 'Giải thích ngân sách / nguồn hàng', 'Có thể thành công'); ch('later', 'Hứa nhập tuần này', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−6 hài lòng'); break;
+        case 'hethang': ch('order', 'Giao Thủ kho nhập ngay', 'Ghi nhận vào danh sách mua của Thủ kho, +10 hài lòng'); ch('neg', 'Giải thích ngân sách / nguồn hàng', 'Có thể thành công'); ch('later', 'Hứa nhập tháng này', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−6 hài lòng'); break;
         case 'doimau': case 'giamgia': case 'phanmem': ch('agree', 'Đồng ý thử', '+8 hài lòng' + (it.topic === 'phanmem' ? ', tốn ' + G.fmt.short(3e6) : ''), it.topic === 'phanmem' ? 3e6 : 0); ch('neg', 'Ghi nhận, cân nhắc', '+3 hài lòng'); ch('later', 'Hứa xem xét', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−6 hài lòng'); break;
-        case 'training': ch('train', 'Cho đi đào tạo', 'Tốn ' + G.fmt.short(1500000) + ', +10 hài lòng, +XP', 1500000); ch('neg', 'Hẹn sắp xếp lịch học', '+3 hài lòng'); ch('later', 'Hứa sắp xếp tuần sau', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−6 hài lòng'); break;
+        case 'training': ch('train', 'Cho đi đào tạo', 'Tốn ' + G.fmt.short(1500000) + ', +10 hài lòng, +XP', 1500000); ch('neg', 'Hẹn sắp xếp lịch học', '+3 hài lòng'); ch('later', 'Hứa sắp xếp kỳ họp sau', '+3 hài lòng, phải thực hiện'); ch('refuse', 'Từ chối', '−6 hài lòng'); break;
         case 'conflict': ch('mediate', 'Hòa giải', 'Có thể thành công, tùy tính cách & quản lý'); ch('teambuild', 'Bữa ăn team building', 'Tốn ' + G.fmt.short(300000) + ', quan hệ +15 (nếu hợp)', 300000); ch('separate', 'Tách ca / khu vực', 'Hết va chạm nhưng giảm phối hợp'); ch('order', 'Ra lệnh phải hòa thuận', 'Hai người −3 hài lòng, hiệu quả tạm thời'); ch('sideA', 'Bênh ' + M.staffName(it.who[0]).split(' ').pop(), 'Người được bênh +8, người kia −10'); ch('sideB', 'Bênh ' + M.staffName(it.who[1]).split(' ').pop(), 'Người được bênh +8, người kia −10'); ch('warn', 'Cảnh cáo cả hai', '−6 hài lòng mỗi người, ghi kỷ luật'); break;
-        case 'followup': ch('done', 'Đã xử lý xong', 'Tôi đã thực hiện'); ch('later', 'Xin thêm một tuần', '−3 hài lòng, hứa lại'); ch('refuse', 'Xin lỗi, chưa làm được', '−8 hài lòng, giảm tin tưởng'); break;
+        case 'followup': ch('done', 'Đã xử lý xong', 'Tôi đã thực hiện'); ch('later', 'Xin thêm một kỳ họp', '−3 hài lòng, hứa lại'); ch('refuse', 'Xin lỗi, chưa làm được', '−8 hài lòng, giảm tin tưởng'); break;
         default: ch('agree', 'Đồng ý', '+8 hài lòng'); ch('later', 'Hứa xử lý sau', '+3 hài lòng'); ch('refuse', 'Từ chối', '−6 hài lòng');
       }
       return c;
@@ -182,7 +184,7 @@
         return r;
       }
       if (it.topic === 'followup') {
-        var f = m.followups.filter(function (x) { return x.id === it.data.fid; })[0]; if (f) { if (choice === 'done') { f.done = true; M.adj(a, 6); r.text = 'Ghi nhận đã xử lý.'; } else if (choice === 'later') { f.due = m.nextDay; M.adj(a, -3); r.text = 'Gia hạn thêm một tuần.'; } else { f.done = true; M.adj(a, -8); m.trust[a] = Math.max(0, (m.trust[a] || 50) - 8); r.text = 'Thất hứa - ' + tn + ' mất lòng tin.'; } }
+        var f = m.followups.filter(function (x) { return x.id === it.data.fid; })[0]; if (f) { if (choice === 'done') { f.done = true; M.adj(a, 6); r.text = 'Ghi nhận đã xử lý.'; } else if (choice === 'later') { f.due = m.nextDay; M.adj(a, -3); r.text = 'Gia hạn thêm một kỳ họp.'; } else { f.done = true; M.adj(a, -8); m.trust[a] = Math.max(0, (m.trust[a] || 50) - 8); r.text = 'Thất hứa - ' + tn + ' mất lòng tin.'; } }
         return r;
       }
       p = 0.5 + 0.12 * mgr + M.traitMod(a) + (bonusP || 0);
@@ -240,12 +242,12 @@
       var m = M.st(), s = G.state, cur = m.current; if (!cur || cur.finished) return null; cur.finished = true;
       var ds = Object.keys(cur.delta).map(function (k) { return cur.delta[k]; }), avg = ds.length ? ds.reduce(function (x, y) { return x + y; }, 0) / ds.length : 0;
       var resolved = cur.results.filter(function (r) { return r.ok; }).length, total = Math.max(1, cur.results.length), q = G.clamp(0.4 + avg / 20 + resolved / total * 0.3, 0, 1);
-      m.buff = { until: s.day + 7, mult: 1 + 0.05 * q }; m.grievance = Math.max(0, m.grievance - 12 * (0.4 + q)); m.skippedRecent = false;
+      m.buff = { until: s.day + 30, mult: 1 + 0.05 * q }; m.grievance = Math.max(0, m.grievance - 12 * (0.4 + q)); m.skippedRecent = false;
       var deltas = {}; s.staff.forEach(function (x) { if (cur.startSat[x.id] != null) deltas[x.id] = Math.round((x.sat - cur.startSat[x.id]) * 10) / 10; });
       s.staff.forEach(function (x) { if (cur.attendees.indexOf(x.id) >= 0) x.sat = Math.min(100, x.sat + 1.5); });
       var rec = { id: cur.id, day: s.day, week: cur.week, skipped: false, delegated: cur.delegated, items: cur.results.map(function (r) { return { topic: r.topic, who: r.who, choice: r.label, text: r.text, ok: r.ok }; }), deltas: deltas, cost: cur.cost, q: Math.round(q * 100), len: cur.len, att: cur.attendees.length };
       m.history.unshift(rec); if (m.history.length > 12) m.history.pop();
-      m.due = false; m.held = false; m.postponed = false; m.nextDay = M.nextWeekday(s.day + 1); m.week++; m.current = null;
+      m.due = false; m.held = false; m.postponed = false; m.nextDay = M.nextMeet(s.day); m.week++; m.current = null;
       if (!s.prep && m.active) m.active.done = true; else M.release();
       G.emit('meetingDone', rec); return rec;
     },
@@ -261,7 +263,7 @@
       return M.finish();
     },
     label: function (it, id) { var c = M.choices(it).filter(function (x) { return x.id === id; })[0]; return c ? c.label : id; },
-    // tuần họp tới: chương trình dự kiến (cảnh báo tâm trạng)
+    // kỳ họp tới: chương trình dự kiến (cảnh báo tâm trạng)
     preview: function () { return M.buildAgenda().slice(0, 4); }
   };
   function s0() { return G.state; }
@@ -273,11 +275,11 @@
     M.daily();
     if (s.day >= m.nextDay && !m.due) { m.due = true; m.held = false; if (s.staff.length) {
       if (G.clock.skipping) { M.autoRun(false); }
-      else if (m.delegate && M.mgrStars() > 0 && G.staff.hasManager()) { var rec = M.autoRun(true); G.notify.push({ title: 'Quản lý đã chủ trì họp tuần', text: m.escalated.length ? m.escalated.length + ' vấn đề nghiêm trọng cần bạn xử lý.' : 'Các vấn đề thường đã được xử lý.', type: 'info', sound: false, action: m.escalated.length ? { label: 'Xử lý vấn đề', fn: function () { G.ui.openMeeting && G.ui.openMeeting(true); } } : null }); }
-      else G.notify.push({ title: 'Họp nhân viên tuần này', text: 'Hôm nay có buổi họp ' + m.len + ' phút để nghe ý kiến và giải quyết khiếu nại.', type: 'info', sound: 'info', action: { label: 'Mở buổi họp', fn: function () { G.ui.openMeeting && G.ui.openMeeting(); } } });
+      else if (m.delegate && M.mgrStars() > 0 && G.staff.hasManager()) { var rec = M.autoRun(true); G.notify.push({ title: 'Quản lý đã chủ trì họp tháng', text: m.escalated.length ? m.escalated.length + ' vấn đề nghiêm trọng cần bạn xử lý.' : 'Các vấn đề thường đã được xử lý.', type: 'info', sound: false, action: m.escalated.length ? { label: 'Xử lý vấn đề', fn: function () { G.ui.openMeeting && G.ui.openMeeting(true); } } : null }); }
+      else G.notify.push({ title: 'Họp nhân viên tháng này', text: 'Hôm nay có buổi họp ' + m.len + ' phút để nghe ý kiến và giải quyết khiếu nại.', type: 'info', sound: 'info', action: { label: 'Mở buổi họp', fn: function () { G.ui.openMeeting && G.ui.openMeeting(); } } });
     } else { m.due = false; m.nextDay = M.nextWeekday(s.day + 1); } }
   });
-  G.on('dayEnd', function () { var m = M.st(), s = G.state, any = s.staff.some(function (x) { return x.status !== 'leave' && G.staff.shiftFor(x, s.day) !== 'off'; }); if (m.due && !m.held && !m.current && !any) { m.due = false; m.postponed = false; m.nextDay = s.day + 1; } else if (m.due && !m.held && !m.current) { M.skip(true); G.notify.push({ title: 'Bỏ lỡ buổi họp tuần', text: 'Nhân viên bức xúc vì không được họp (+8 bức xúc).', type: 'warn', sound: false }); m.skippedRecent = true; } if (m.current) m.current = null; M.release(); });
+  G.on('dayEnd', function () { var m = M.st(), s = G.state, any = s.staff.some(function (x) { return x.status !== 'leave' && G.staff.shiftFor(x, s.day) !== 'off'; }); if (m.due && !m.held && !m.current && !any) { m.due = false; m.postponed = false; m.nextDay = s.day + 1; } else if (m.due && !m.held && !m.current) { M.skip(true); G.notify.push({ title: 'Bỏ lỡ buổi họp tháng', text: 'Nhân viên bức xúc vì không được họp (+8 bức xúc).', type: 'warn', sound: false }); m.skippedRecent = true; } if (m.current) m.current = null; M.release(); });
   G.on('tick', function () { var m = M.st(); if (m.active && m.active.day === G.state.day && G.state.minute >= m.active.endMin && m.active.done) M.release(); else if (m.active && m.active.day === G.state.day && G.state.minute >= m.active.endMin + 5) M.release(); });
   G.conversionMods.push(function () { return M.buffMult(); });
   var trm = function () { var m = M.st(), pen = (m.sepPenalty || 0) * 0.01; return M.buffMult() * (1 - Math.min(0.05, pen)); }; trm.label = 'Tinh thần nhóm'; G.trafficMods.push(trm);

@@ -10,7 +10,7 @@
   function arrow(d) { return d > 0.4 ? '<b class="pos">▲ +' + Math.round(d) + '</b>' : d < -0.4 ? '<b class="neg">▼ ' + Math.round(d) + '</b>' : '<span class="muted">–</span>'; }
   function header(cur) {
     var s = G.state, st = s.staff.filter(function (x) { return cur.attendees.indexOf(x.id) >= 0; }), avg = st.length ? st.reduce(function (a, x) { return a + x.sat; }, 0) / st.length : 0;
-    return '<div class="card"><b>' + I('people', 16) + ' Họp nhân viên · tuần ' + cur.week + '</b> <span class="muted small">(' + cur.len + ' phút' + (cur.prep ? ', trước giờ mở cửa' : ', cửa hàng vẫn mở') + ')</span><div class="avrow">' + st.slice(0, 10).map(function (x) { return '<span class="avm">' + av(x.id, 30, 38) + '<i>' + I(moodIcon(x.sat), 12) + '</i></span>'; }).join('') + '</div>' +
+    return '<div class="card"><b>' + I('people', 16) + ' Họp nhân viên · tháng ' + cur.week + '</b> <span class="muted small">(' + cur.len + ' phút' + (cur.prep ? ', trước giờ mở cửa' : ', cửa hàng vẫn mở') + ')</span><div class="avrow">' + st.slice(0, 10).map(function (x) { return '<span class="avm">' + av(x.id, 30, 38) + '<i>' + I(moodIcon(x.sat), 12) + '</i></span>'; }).join('') + '</div>' +
       '<div class="mb"><span>Tinh thần chung</span>' + UI.bar(avg / 100, avg < 40 ? 'bad' : avg > 65 ? 'good' : '') + '<b>' + Math.round(avg) + '</b></div></div>';
   }
   function itemCard(it, cur) {
@@ -40,7 +40,7 @@
   };
   UI.minutesHtml = function (r) {
     if (r.skipped) return '<div class="card"><b>Biên bản - ngày ' + r.day + '</b><div class="neg small">' + E(r.text) + '</div></div>';
-    var h = '<div class="card"><b>' + I('receipt', 16) + ' Biên bản họp tuần ' + r.week + ' (ngày ' + r.day + ')</b><div class="small">' + r.att + ' người dự · ' + r.len + ' phút' + (r.delegated ? ' · Quản lý chủ trì' : '') + ' · chất lượng <b>' + r.q + '%</b> · chi phí ' + F.vnd(r.cost) + '</div>';
+    var h = '<div class="card"><b>' + I('receipt', 16) + ' Biên bản họp tháng ' + r.week + ' (ngày ' + r.day + ')</b><div class="small">' + r.att + ' người dự · ' + r.len + ' phút' + (r.delegated ? ' · Quản lý chủ trì' : '') + ' · chất lượng <b>' + r.q + '%</b> · chi phí ' + F.vnd(r.cost) + '</div>';
     h += r.items.length ? r.items.map(function (i) { return '<div class="small">' + (i.ok ? I('check', 12) : I('warn', 12)) + ' ' + E(M().TOPICS[i.topic].name) + ' - ' + E(i.who.map(function (x) { return M().staffName(x).split(' ').pop(); }).join(' & ')) + ': ' + E(i.choice) + '</div>'; }).join('') : '<div class="muted small">Không có vấn đề.</div>';
     h += '<div class="small"><b>Hài lòng:</b> ' + Object.keys(r.deltas).map(function (k) { var d = r.deltas[k]; return E(M().staffName(k).split(' ').pop()) + ' ' + (d > 0.4 ? '▲' + Math.round(d) : d < -0.4 ? '▼' + Math.round(d) : '–'); }).join(' · ') + '</div></div>';
     return h;
@@ -63,7 +63,7 @@
   A.mtEsc = function () { UI.openMeeting(true); };
   A.mtPostpone = function () { res(M().postpone()); };
   A.mtSkip = function () { if (!M().isDue()) { res({ ok: false, msg: 'Chưa tới ngày họp' }); return; } res(M().skip()); };
-  A.mtDay = function (el) { var m = M().st(); m.weekday = +el.dataset.v; if (!m.due && !m.current) m.nextDay = M().nextWeekday(G.state.day + (m.nextDay <= G.state.day ? 1 : 0)); };
+  A.mtDay = function (el) { var m = M().st(); m.weekday = +el.dataset.v; if (!m.due && !m.current) m.nextDay = M().nextWeekday(Math.max(G.state.day + 1, M().monthStart(m.nextDay))); };
   A.mtLen = function (el) { M().st().len = +el.dataset.v; };
   A.mtDelegateOn = function () { var m = M().st(); m.delegate = !m.delegate; };
   A.mtFollow = function (el) { var f = M().st().followups.filter(function (x) { return x.id === +el.dataset.id; })[0]; if (f) { f.done = true; var st = G.staff.byId(f.who); if (st) st.sat = Math.min(100, st.sat + 4); G.notify.toast('Đã ghi nhận hoàn thành việc đã hứa', 'good'); } };
@@ -71,9 +71,9 @@
   // ---------- tab Họp ----------
   UI.meetingView = function () {
     var m = M().st(), s = G.state, h = '', due = M().isDue(), left = M().daysLeft();
-    h += '<div class="card"><b>' + I('clock', 16) + ' Họp tuần ' + (m.week + 1) + '</b> ' + (due ? '<span class="chipx neg">Hôm nay</span>' : '<span class="chipx st-wait">còn ' + left + ' ngày (ngày ' + m.nextDay + ', ' + G.cal.WDFULL[G.cal.weekday(m.nextDay)] + ')</span>') +
+    h += '<div class="card"><b>' + I('clock', 16) + ' Họp tháng ' + (m.week + 1) + '</b> ' + (due ? '<span class="chipx neg">Hôm nay</span>' : '<span class="chipx st-wait">còn ' + left + ' ngày (ngày ' + m.nextDay + ', ' + G.cal.WDFULL[G.cal.weekday(m.nextDay)] + ')</span>') +
       '<div class="small muted">Nghe ý kiến, xử lý khiếu nại & mâu thuẫn. Họp đều đặn tăng tinh thần, giảm nghỉ việc; bỏ họp thì nhân viên bức xúc.</div>' +
-      '<div class="row"><button class="btn primary" data-act="mtOpen">' + I('people', 16) + (m.current ? ' Tiếp tục họp' : due ? ' Họp ngay' : ' Họp ngay (ngoài lịch)') + '</button><button class="btn" data-act="mtPostpone"' + (due && !m.postponed && !m.current ? '' : ' disabled') + '>Hoãn 1 ngày</button><button class="btn" data-act="mtSkip"' + (due && !m.current ? '' : ' disabled') + '>Bỏ qua tuần này</button></div>' +
+      '<div class="row"><button class="btn primary" data-act="mtOpen">' + I('people', 16) + (m.current ? ' Tiếp tục họp' : due ? ' Họp ngay' : ' Họp ngay (ngoài lịch)') + '</button><button class="btn" data-act="mtPostpone"' + (due && !m.postponed && !m.current ? '' : ' disabled') + '>Hoãn 1 ngày</button><button class="btn" data-act="mtSkip"' + (due && !m.current ? '' : ' disabled') + '>Bỏ qua tháng này</button></div>' +
       (m.escalated.length ? '<button class="btn primary" data-act="mtEsc">' + I('warn', 14) + ' ' + m.escalated.length + ' vấn đề Quản lý chuyển lên cần bạn xử lý</button>' : '') + '</div>';
     h += '<div class="card small"><b>Cài đặt</b><div class="chips">' + G.cal.WD.map(function (d, i) { return '<button class="chip' + (m.weekday === i ? ' on' : '') + '" data-act="mtDay" data-v="' + i + '">' + d + '</button>'; }).join('') + '</div><div class="chips">' + [15, 30, 60].map(function (v) { return '<button class="chip' + (m.len === v ? ' on' : '') + '" data-act="mtLen" data-v="' + v + '">' + (v === 60 ? '1 giờ' : v + ' phút') + '</button>'; }).join('') + '</div>' +
       '<div class="muted">Họp trước giờ mở cửa không ảnh hưởng khách (có tiền tăng ca); họp trong ngày thì cửa hàng giảm người phục vụ.</div>' +

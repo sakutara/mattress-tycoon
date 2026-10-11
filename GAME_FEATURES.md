@@ -174,12 +174,12 @@ Bán hàng · Sale B2B · Kế toán · Thủ kho · Giao hàng/lắp đặt · 
 ### 8.2 Phòng nhân viên
 Xây từ cấp 1 (8 tr, 50k/ngày); sofa, bàn, máy cà phê, locker, bảng ca, đồng hồ. Nhân viên hết ca/rảnh lâu vào nghỉ, hồi mệt và hài lòng nhanh hơn. **6 nâng cấp:** ghế sofa, máy pha cà phê, tủ locker, máy lạnh, phòng nghỉ trưa, góc học tập (+20% kinh nghiệm đào tạo).
 
-### 8.3 Họp nhân viên hằng tuần
-- Một buổi mỗi tuần game (mặc định thứ Hai), 15/30/60 phút. Họp **trước giờ mở cửa** (nhân viên ngoài ca nhận làm thêm 1,5×) hoặc **giữa ngày** (người dự họp vào phòng nhân viên, ngừng phục vụ khách). Hoãn 1 lần được; bỏ họp bị phạt và dồn "bức xúc".
+### 8.3 Họp nhân viên hằng tháng
+- Một buổi mỗi tháng game (30 ngày; mặc định thứ Hai đầu tháng), 15/30/60 phút. Họp **trước giờ mở cửa** (nhân viên ngoài ca nhận làm thêm 1,5×) hoặc **giữa ngày** (người dự họp vào phòng nhân viên, ngừng phục vụ khách). Hoãn 1 lần được; bỏ họp bị phạt và dồn "bức xúc".
 - Chương trình tối đa 6 vấn đề, tự sinh từ dữ liệu: khiếu nại (lương thấp, nhiều ca liên tiếp, thiếu người, khách chờ lâu…), ý kiến (hết hàng, đổi mẫu trưng bày, phòng nghỉ, máy lạnh, giảm giá…), vấn đề (bảo hành chưa xử lý, giao trễ, đánh giá xấu), **mâu thuẫn giữa hai nhân viên**, việc đã hứa tuần trước.
 - 6 tính cách (nóng tính, hòa nhã, chăm chỉ, lười, tham vọng, trung thành); điểm quan hệ từng cặp.
 - Mỗi vấn đề có 3–7 lựa chọn có đánh đổi (đồng ý, thương lượng, hứa xử lý sau, từ chối, thưởng nóng, tăng lương, đổi ca, đào tạo, hòa giải, bữa ăn team building, tách ca, cảnh cáo…). **Quản lý chủ trì** được: tự xử lý việc thường, chuyển việc nghiêm trọng.
-- Họp tốt → buff tới +5% chuyển đổi/lượng khách trong 1 tuần và giảm nghỉ việc. Bỏ họp/để mâu thuẫn kéo dài → bức xúc, bỏ ca, xin nghỉ (sự kiện xấu khi bức xúc ≥ 40).
+- Họp tốt → buff tới +5% chuyển đổi/lượng khách trong 1 tháng và giảm nghỉ việc. Bỏ họp/để mâu thuẫn kéo dài → bức xúc, bỏ ca, xin nghỉ (sự kiện xấu khi bức xúc ≥ 40).
 - Mục con *Họp*: đếm ngược, cài đặt, danh sách việc đã hứa, **bản đồ quan hệ**, mâu thuẫn, lịch sử 12 buổi (biên bản).
 
 ---
