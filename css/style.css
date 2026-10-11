@@ -82,7 +82,7 @@ input.qty { width: 62px; } input.price { width: 94px; }
 .staffcard { border-top: 1px dashed var(--line); padding: 6px 0; } .cand { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 12px; }
 .sched td, .sched th { text-align: center; padding: 3px; } .sched td.today, .sched th.today { background: #FFF3C4; }
 .sh { width: 100%; min-width: 40px; padding: 4px 2px; border-radius: 4px; border: 0; cursor: pointer; font-size: 11px; background: #E3EBF7; color: #26325F; font-weight: 700; }
-.sh-am { background: #4FC3F7; color: #fff; } .sh-pm { background: #FF9A5B; color: #fff; } .sh-full { background: #34C997; color: #fff; } .sh-off { color: var(--muted); }
+.sh-am { background: #4FC3F7; color: #fff; } .sh-pm { background: #FF9A5B; color: #fff; } .sh-full { background: #34C997; color: #fff; } .sh-off { color: var(--muted); } .sh-away { background: repeating-linear-gradient(45deg,#F3D9DC,#F3D9DC 6px,#EBC3C8 6px,#EBC3C8 12px); color: #B03A48; cursor: not-allowed; font-size: 10px; line-height: 1.1; }
 .chart { display: flex; align-items: flex-end; gap: 3px; height: 100px; margin-top: 8px; }
 .chart .col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; font-size: 9px; color: var(--muted); }
 .chart .col i { width: 100%; background: linear-gradient(180deg, #5EE0B4, #1FAE74); min-height: 1px; clip-path: polygon(0 12%, 50% 0, 100% 12%, 100% 100%, 0 100%); } .chart .col i.n { background: linear-gradient(180deg, #FF8A7A, #F0475B); }

@@ -63,8 +63,14 @@
       var sh = G.data.shifts[S.shiftFor(st, day)]; if (!sh || sh.to === 0) return false;
       return min >= sh.from && min < sh.to;
     },
+    // ngày trong tuần (0-6) mà NV đang nghỉ phép / đi đào tạo (từ hôm nay tới hết st.until): 'leave' | 'training' | null
+    awayOn: function (st, wd) {
+      if (!st || (st.status !== 'leave' && st.status !== 'training')) return null;
+      for (var d = G.state.day; d <= st.until && d < G.state.day + 7; d++) if (G.cal.weekday(d) === wd) return st.status;
+      return null;
+    },
     cycleShift: function (id, wd) {
-      var st = S.byId(id); if (!st) return;
+      var st = S.byId(id); if (!st || S.awayOn(st, wd)) return;
       var order = ['off', 'am', 'pm', 'full'], i = order.indexOf(st.sched[wd]);
       st.sched[wd] = order[(i + 1) % 4];
     },
@@ -96,6 +102,7 @@
           var off = [1, 2, 3, 0, 4][idx % 5], a = [];
           for (var d = 0; d < 7; d++) {
             var sh = 'full';
+            if (S.awayOn(st, d)) { a.push(st.sched[d]); continue; }
             if (n >= 3 && d < 5) sh = ['am', 'pm', 'full'][idx % 3];
             if (d === off) sh = 'off';
             if (n === 1 && d === 1) sh = 'off';

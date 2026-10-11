@@ -66,7 +66,7 @@
     h += '<div class="tblwrap"><table class="tbl sched"><tr><th>NV</th>' + G.cal.WD.map(function (d, i) { return '<th class="' + (i === today ? 'today' : '') + '">' + d + '</th>'; }).join('') + '</tr>';
     s.staff.forEach(function (x) {
       h += '<tr><td class="nw small">' + E(x.name.split(' ').pop()) + '<br><span class="muted" style="color:' + G.roleById[x.role].color + '">' + E(G.roleById[x.role].name) + '</span>' + (x.status !== 'ok' ? '<br>' + statusChip(x) : '') + '</td>' +
-        x.sched.map(function (sh, i) { return '<td class="' + (i === today ? 'today' : '') + '"><button class="sh sh-' + sh + '" data-act="cycle" data-id="' + x.id + '" data-wd="' + i + '">' + G.data.shifts[sh].short + '</button></td>'; }).join('') + '</tr>';
+        x.sched.map(function (sh, i) { var aw = S.awayOn(x, i); if (aw) return '<td class="' + (i === today ? 'today' : '') + '"><button class="sh sh-away" disabled title="' + (aw === 'training' ? 'Đang đi đào tạo' : 'Đã duyệt nghỉ') + ' - không sửa được ca">' + (aw === 'training' ? 'Học' : 'Nghỉ phép') + '</button></td>'; return '<td class="' + (i === today ? 'today' : '') + '"><button class="sh sh-' + sh + '" data-act="cycle" data-id="' + x.id + '" data-wd="' + i + '">' + G.data.shifts[sh].short + '</button></td>'; }).join('') + '</tr>';
     });
     // phủ ca bán hàng
     h += '<tr class="tot"><td class="small">Bán hàng (sáng/chiều)</td>' + [0, 1, 2, 3, 4, 5, 6].map(function (d) {
