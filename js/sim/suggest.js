@@ -66,7 +66,11 @@
     Object.keys(keys).forEach(function (k) {
       if (!G.skus[k]) return;
       var st = G.life.stage(k), v = vel(k) || (onShelf(k) ? 0.4 : 0), have = W.total(k) + W.incomingQty(k), dl = v > 0 ? have / v : 99, cm = commitments(k);
-      if (st < 3) {
+      // mẫu lỗi thời (st=3): chỉ nhập khi có khách hỏi / khách đặt (cọc, đơn B2B); không nhập theo kệ, mùa vụ hay tốc độ bán
+      if (st >= 3) {
+        if (lostRecent(k) >= 1 && have < 3) add(k, 'Khách hỏi hết hàng');
+        if (cm > 0 && have < cm) add(k, depCommit(k) > 0 && have < depCommit(k) ? 'Đơn cọc' : 'Đơn đang mở');
+      } else {
         if (lostRecent(k) >= 1 && have < 3) add(k, 'Khách hỏi hết hàng');
         var ci = custInfo(k); if (ci.orders.some(function (o) { return o.type === 'live'; }) && have < 6) add(k, 'Livestream');
         var sdm = G.season.demand(G.skus[k].type, s.day + 3) * (G.weather ? G.weather.demand(G.skus[k].type) : 1);
@@ -119,6 +123,7 @@
     if (hp) Object.keys(s.inv).concat(s.slots.map(function (x) { return x.sku; })).forEach(function (k, i, arr) {
       if (!k || !G.skus[k] || arr.indexOf(k) !== i) return;
       var st = G.life.stage(k), have = W.total(k); if (!have) return;
+      if (cand[k] && st === 3) return;   // lỗi thời nhưng đang có khách hỏi/đặt: giữ hàng, đừng gợi ý xả
       var last = s.lastSold[k], stale = (last ? s.day - last : s.day) > 20 && !(vel(k) > 0);
       if (st < 3 && !stale) return;
       var base = G.pricing.base(k), fl = G.pricing.floor(k), maxPct = fl ? Math.max(0, 1 - fl / base) : 0.5, pct = Math.min(st === 3 ? 0.4 : 0.25, maxPct);
@@ -143,6 +148,8 @@
       if (a.action !== b.action) return a.action === 'order' ? -1 : 1;
       if (a.tier !== b.tier) return a.tier - b.tier;
       var da = a.cust ? a.cust.minDays : 99, db = b.cust ? b.cust.minDays : 99; if (da !== db) return da - db;
+      var sa = a.stage >= 3 ? 2 : a.stage === 2 ? 1 : 0, sb = b.stage >= 3 ? 2 : b.stage === 2 ? 1 : 0;   // mới ra mắt / thịnh hành nhập trước, lỗi thời sau cùng
+      if (sa !== sb) return sa - sb;
       if (a.daysLeft !== b.daysLeft) return (a.daysLeft || 99) - (b.daysLeft || 99);
       return (b.chosen ? b.chosen.cash : 0) - (a.chosen ? a.chosen.cash : 0);
     });

@@ -46,7 +46,8 @@
         var c = r.chosen, t = G.skus[r.sku], lost = G.suggest.lostRecent(r.sku);
         var urgent = r.tags.indexOf('Hết hàng') >= 0 || r.tags.indexOf('Sắp hết') >= 0 || r.tags.indexOf('Đơn cọc') >= 0 || r.tags.indexOf('Đơn đang mở') >= 0 || lost >= 1 || (G.shelf.isShown(r.sku) && G.wh.lineStock(r.sku) <= 2) || r.daysLeft < c.lead[1] + 3;
         if (r.tier === 1) urgent = true;
-        if (!urgent || !c.qty || G.life.stage(r.sku) >= 3) return;
+        // mẫu lỗi thời: chỉ nhập khi có khách hỏi / khách đặt (tier 1-2), còn lại bỏ qua
+        if (!urgent || !c.qty || (G.life.stage(r.sku) >= 3 && r.tier > 2)) return;
         var veryUrgent = r.tags.indexOf('Hết hàng') >= 0 || r.daysLeft < 1.5 || lost >= 2;
         if (urgentOnly && !veryUrgent) return;
         if (s.orders.some(function (o) { return o.status !== 'Đã về kho' && o.items[r.sku] && o.autoBy === 'thukho'; })) return;
