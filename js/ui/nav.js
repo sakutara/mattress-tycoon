@@ -6,7 +6,7 @@
   P.groups = [
     { id: 'home', label: 'Cửa hàng', icon: '🏪', tabs: [] },
     { id: 'stock', label: 'Kho', icon: '📦', tabs: ['stock', 'price', 'decor'] },
-    { id: 'buy', label: 'Nhập', icon: '🛒', tabs: ['buy', 'cart', 'ship', 'b2b'] },
+    { id: 'buy', label: 'Nhập', icon: '🛒', tabs: ['buy', 'cart', 'ship', 'deposit', 'b2b'] },
     { id: 'staff', label: 'Nhân viên', icon: '👥', tabs: ['staff'] },
     { id: 'more', label: 'Thêm', icon: '☰', tabs: ['more', 'report', 'upgrade', 'warranty', 'rev', 'debts', 'camp', 'live'] }
   ];
@@ -14,6 +14,7 @@
   // tab chỉ hiện khi liên quan
   var VIS = {
     ship: function (s) { return s.shipping.orders.length > 0 || s.special.list.length > 0 || s.level >= 1; },
+    deposit: function (s) { return s.special.list.length > 0 || s.level >= 1; },
     b2b: function (s) { return s.level >= 3 || s.b2b.orders.length > 0 || s.b2b.offers.length > 0; },
     rev: function (s) { return s.revs.list.length > 0; },
     debts: function (s) { return s.events.debts.length > 0; },

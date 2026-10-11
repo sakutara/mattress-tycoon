@@ -9,13 +9,14 @@
       $('open-btn').onclick = $('open-mini').onclick = function () { UI.abGate(function () { G.clock.openShop(); if (G.state.speed === 0) G.clock.setSpeed(1); UI.hud.update(); }); };
       // cài đặt
       var st = G.settings;
-      function syncSet() { $('set-music').checked = st.music; $('set-vol').value = Math.round(st.musicVol * 100); $('set-sfx').checked = st.sfx; $('set-auto').checked = st.autoOpen; $('pb-auto').checked = st.autoOpen; }
+      function syncSet() { $('set-music').checked = st.music; $('set-vol').value = Math.round(st.musicVol * 100); $('set-sfx').checked = st.sfx; $('set-auto').checked = st.autoOpen; $('pb-auto').checked = st.autoOpen; $('sc-auto').checked = st.autoOpen; }
       syncSet();
       $('set-music').onchange = function () { st.music = this.checked; G.saveSettings(); G.music.apply(); };
       $('set-vol').oninput = function () { st.musicVol = this.value / 100; G.saveSettings(); G.music.apply(); };
       $('set-sfx').onchange = function () { st.sfx = this.checked; G.saveSettings(); };
       $('set-auto').onchange = function () { st.autoOpen = this.checked; G.saveSettings(); syncSet(); };
       $('pb-auto').onchange = function () { st.autoOpen = this.checked; G.saveSettings(); syncSet(); };
+      $('sc-auto').onchange = function () { st.autoOpen = this.checked; G.saveSettings(); syncSet(); };
       G.music.arm();
       $('profile-btn').onclick = function () { G.profile.show(false); };
       $('help-btn').onclick = function () { $('drawer').classList.remove('open'); G.story.openBook(); };

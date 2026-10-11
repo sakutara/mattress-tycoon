@@ -1,4 +1,4 @@
-/* Tab Giao hàng (ship + đơn đặt cọc) và Đơn lớn (B2B) */
+/* Tab Giao hàng (ship), Đơn cọc (đặt riêng có cọc) và Đơn lớn (B2B) */
 (function () {
   'use strict';
   var G = window.G, E = G.esc, F = G.fmt, UI = G.ui, P = UI.panels, opts = UI.opts, res = UI.res;
@@ -80,10 +80,14 @@
     var hist = sh.orders.filter(function (o) { return ['Đã giao', 'Thất bại', 'Hủy'].indexOf(o.status) >= 0; }).slice(-8).reverse();
     h += '<h4>Lịch sử gần đây</h4>' + hist.map(function (o) { return '<div class="card small ordcard">' + grid(o.items) + '<b>#' + o.id + '</b> ' + F.short(o.rev) + ' <span class="chipx ' + STC[o.status] + '">' + o.status + '</span><br><span class="muted">' + E(o.note) + '</span></div>'; }).join('');
     h += '<p class="muted small">Đã giao ' + sh.stats.delivered + ' · thất bại ' + sh.stats.failed + ' · trễ ' + sh.stats.late + ' · hư hàng ' + sh.stats.damaged + ' · hỏa tốc ' + (sh.stats.express || 0) + '</p>';
-    // đặt riêng
+    return h;
+  }
+  function depositTab() {
+    var s = G.state, h = '';
     var sp = s.special.list;
     h += '<h4>Đơn đặt riêng có cọc (' + sp.filter(function (o) { return o.status === 'Chờ xử lý' || o.status === 'Đã nhận cọc'; }).length + ')</h4><p class="muted small">Khách hỏi mẫu chưa có: nhận cọc 30%, nhập hàng rồi giao trong 10 ngày. Quá hạn phải hoàn cọc.</p>';
     sp.slice().reverse().slice(0, 8).forEach(function (o) { h += depCard(o); });
+    if (!sp.length) h += '<p class="muted small">Chưa có đơn đặt cọc nào.</p>';
     return h;
   }
   P.chg.shipAuto = function (el) { G.state.shipping.auto = el.value; };
@@ -127,6 +131,7 @@
   P.act.b2bView = function (el) { G.b2b.showOffer(+el.dataset.id); };
   P.act.b2bTrip = function (el) { res(G.b2b.trip(+el.dataset.id, el.dataset.m)); };
 
-  P.register({ id: 'ship', label: 'Giao hàng', after: 'staff', render: shipTab, badge: function () { return G.shipping.pendingCount() + G.deposits.pending(); } });
+  P.register({ id: 'ship', label: 'Giao hàng', after: 'staff', render: shipTab, badge: function () { return G.shipping.pendingCount(); } });
+  P.register({ id: 'deposit', label: 'Đơn cọc', after: 'ship', render: depositTab, badge: function () { return G.deposits.pending(); } });
   P.register({ id: 'b2b', label: 'Đơn lớn', render: b2bTab, badge: function () { return G.b2b.pendingOffers().length; } });
 })();

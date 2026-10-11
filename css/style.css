@@ -359,6 +359,7 @@ body { background-image: repeating-linear-gradient(90deg, rgba(120,90,60,.035) 0
 .schedwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 6px 0; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 .sched2 { border-collapse: collapse; width: 100%; } .sched2 th, .sched2 td { padding: 2px; text-align: center; font-size: 11px; min-width: 38px; } .sched2 th.today, .sched2 td.today { background: #FFF6D6; }
 .sched2 .stk { position: sticky; left: 0; background: #fff; z-index: 2; min-width: 64px; max-width: 70px; text-align: left; font-size: 11px; padding-left: 4px; box-shadow: 2px 0 3px rgba(0,0,0,.06); } .sched2 .stk img { display: block; border-radius: 6px; } .sched2 .stk span { display: block; overflow: hidden; text-overflow: ellipsis; }
+.sched2 .rolehd td { text-align: left; background: #F3F6FC; padding: 4px 8px; font-size: 12px; } .sched2 .rolehd .muted { font-weight: 400; }
 .sched2 .sh { min-width: 38px; width: 100%; min-height: 44px; font-weight: 800; font-size: 13px; border-radius: 8px; } .sched2 .cv.red { color: #fff; background: #E8505B; border-radius: 6px; padding: 0 5px; }
 .wkrow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin: 4px 0 8px; } .wkrow .sh { min-height: 48px; font-size: 12px; font-weight: 800; border-radius: 8px; padding: 2px; } .wkrow .sh.today { outline: 2px solid #5a3a2e; }
 .avchips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 8px; } .avc { flex: 0 0 auto; min-width: 56px; min-height: 64px; background: #fff; border: 2px solid #DCE6F8; border-radius: 12px; display: flex; flex-direction: column; align-items: center; font: inherit; cursor: pointer; padding: 3px; } .avc.on { border-color: #5a3a2e; background: #FFF6B8; } .avc small { font-size: 10px; }
@@ -566,3 +567,5 @@ body { background-image: repeating-linear-gradient(90deg, rgba(120,90,60,.035) 0
 #app.game-view #stage-ctl, #app.game-view #home, #app.game-view .sheet, #app.game-view .fab { display: none !important; }
 #app.game-view #stage { flex: 1 1 auto; }
 .abcart { border-left: 4px solid var(--accent, #2f7d6b); } .carth { margin: 0 0 4px; display: flex; align-items: center; gap: 6px; } .abcart .abitem { margin: 6px 0; }
+
+.auto-sw { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; cursor: pointer; }

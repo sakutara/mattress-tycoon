@@ -125,11 +125,18 @@
     h += '<div class="small muted">Sáng 8-14h · Chiều 14-21h · Full cả ngày · bấm ô để đổi (Nghỉ → Sáng → Chiều → Full). Full quá 5 ngày liên tiếp sẽ mệt.</div>';
     if (!s.staff.length) return h + '<p class="muted">Chưa thuê nhân viên nào.</p>';
     h += '<div class="schedwrap"><table class="sched2"><tr><th class="stk">NV</th>' + G.cal.WD.map(function (d, i) { return '<th class="' + (i === td ? 'today' : '') + '">' + d + '</th>'; }).join('') + '</tr>';
-    s.staff.forEach(function (x) {
-      h += '<tr><td class="stk">' + av(x, 28, 34) + '<span>' + E(x.name.split(' ').pop()) + '</span></td>' + x.sched.map(function (sh, i) { var aw = G.staff.awayOn(x, i); if (aw) return '<td class="' + (i === td ? 'today' : '') + '"><button class="sh sh-away" disabled title="' + awayTip(aw) + '">' + awayLbl(aw) + '</button></td>'; return '<td class="' + (i === td ? 'today' : '') + '"><button class="sh sh-' + sh + '" data-act="cycle" data-id="' + x.id + '" data-wd="' + i + '">' + shCode(sh) + '</button></td>'; }).join('') + '</tr>';
+    var covRow = '<tr class="cov"><td class="stk"><b>Bán hàng</b><br><small>sáng/chiều</small></td>' + [0, 1, 2, 3, 4, 5, 6].map(function (d) { var c = coverage(d); return '<td class="' + (d === td ? 'today' : '') + '"><span class="cv ' + (c[0] ? '' : 'red') + '">' + c[0] + '</span>/<span class="cv ' + (c[1] ? '' : 'red') + '">' + c[1] + '</span></td>'; }).join('') + '</tr>';
+    G.data.roles.forEach(function (r) {
+      var grp = s.staff.filter(function (x) { return x.role === r.id; }); if (!grp.length) return;
+      h += '<tr class="rolehd"><td colspan="8" style="border-left:4px solid ' + r.color + '"><b>' + E(r.name) + '</b> <span class="muted">· ' + grp.length + ' NV</span></td></tr>';
+      grp.forEach(function (x) {
+        h += '<tr><td class="stk">' + av(x, 28, 34) + '<span>' + E(x.name.split(' ').pop()) + '</span></td>' + x.sched.map(function (sh, i) { var aw = G.staff.awayOn(x, i); if (aw) return '<td class="' + (i === td ? 'today' : '') + '"><button class="sh sh-away" disabled title="' + awayTip(aw) + '">' + awayLbl(aw) + '</button></td>'; return '<td class="' + (i === td ? 'today' : '') + '"><button class="sh sh-' + sh + '" data-act="cycle" data-id="' + x.id + '" data-wd="' + i + '">' + shCode(sh) + '</button></td>'; }).join('') + '</tr>';
+      });
+      if (r.id === 'sales') h += covRow;
     });
-    h += '<tr class="cov"><td class="stk"><b>Bán hàng</b><br><small>sáng/chiều</small></td>' + [0, 1, 2, 3, 4, 5, 6].map(function (d) { var c = coverage(d); return '<td class="' + (d === td ? 'today' : '') + '"><span class="cv ' + (c[0] ? '' : 'red') + '">' + c[0] + '</span>/<span class="cv ' + (c[1] ? '' : 'red') + '">' + c[1] + '</span></td>'; }).join('') + '</tr></table></div>';
-    h += '<p class="muted small">Hàng cuối: số NV bán hàng (chưa kể chủ) ca sáng / chiều, <b class="neg">đỏ</b> = trống ca. Chủ luôn đứng quầy nhưng ca trống giờ cao điểm → khách chờ lâu, đánh giá thấp.</p>';
+    if (!s.staff.some(function (x) { return x.role === 'sales'; })) h += covRow;
+    h += '</table></div>';
+    h += '<p class="muted small">Hàng "Bán hàng" dưới nhóm Bán hàng: số NV bán hàng (chưa kể chủ) ca sáng / chiều, <b class="neg">đỏ</b> = trống ca. Chủ luôn đứng quầy nhưng ca trống giờ cao điểm → khách chờ lâu, đánh giá thấp.</p>';
     return h;
   }
   // ---- Đào tạo / Phòng NV ----
