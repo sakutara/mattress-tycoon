@@ -86,7 +86,10 @@
     var s = G.state, h = '';
     var sp = s.special.list;
     h += '<h4>Đơn đặt riêng có cọc (' + sp.filter(function (o) { return o.status === 'Chờ xử lý' || o.status === 'Đã nhận cọc'; }).length + ')</h4><p class="muted small">Khách hỏi mẫu chưa có: nhận cọc 30%, nhập hàng rồi giao trong 10 ngày. Quá hạn phải hoàn cọc.</p>';
-    sp.slice().reverse().slice(0, 8).forEach(function (o) { h += depCard(o); });
+    function isOpen(o) { return o.status === 'Chờ xử lý' || o.status === 'Đã nhận cọc'; }
+    var openL = sp.filter(isOpen).sort(function (a, b) { return a.due - b.due; });   // chưa giao: gần hạn nhất lên đầu
+    var doneL = sp.filter(function (o) { return !isOpen(o); }).reverse().slice(0, 8);
+    openL.concat(doneL).forEach(function (o) { h += depCard(o); });
     if (!sp.length) h += '<p class="muted small">Chưa có đơn đặt cọc nào.</p>';
     return h;
   }
