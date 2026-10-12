@@ -209,6 +209,7 @@
     // ---- GIỎ HÀNG CHUNG: lines[nguồn][sku] = SL; gợi ý & chọn thủ công đều vào đây, mỗi nguồn = 1 đơn ----
     cart: function () {
       var c = G.state.cart; if (!c.lines) c.lines = {}; if (!c.opt) c.opt = {};
+      if (c.dest !== 'st' && !G.state.whRent[c.dest]) c.dest = 'st';   // kho nhận đã trả/không còn -> về kho cửa hàng
       if (c.items) { if (Object.keys(c.items).length) c.lines[c.source] = Object.assign(c.lines[c.source] || {}, c.items); delete c.items; }   // chuyển save cũ
       return c;
     },

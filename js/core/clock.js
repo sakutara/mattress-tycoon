@@ -60,7 +60,7 @@
         if (!C.isPaused()) C.advance(dt * G.state.speed * 60 / C.SEC_PER_HOUR);
         if (G.render && G.render.draw) { try { G.render.draw(dt); } catch (e) { C.showDrawError(e); } }
         uiAcc += dt;
-        if (uiAcc > 0.25) { uiAcc = 0; G.emit('uiRefresh'); }
+        if (uiAcc > 0.25) { uiAcc = 0; try { G.emit('uiRefresh'); } catch (e) { C.showDrawError(e); } }
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
