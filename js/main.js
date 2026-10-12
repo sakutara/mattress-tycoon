@@ -36,6 +36,8 @@
   };
   // bàn phím số cho mọi ô nhập số (điện thoại)
   document.addEventListener('focusin', function (e) { var t = e.target; if (t && t.tagName === 'INPUT' && t.type === 'number' && !t.inputMode) t.inputMode = (t.step && String(t.step).indexOf('.') >= 0) ? 'decimal' : 'numeric'; });
+  // lỗi JS bất kỳ (kể cả lúc khởi động) -> hiện lên canvas để chẩn đoán
+  window.addEventListener('error', function (ev) { if (G.clock && G.clock.showDrawError) G.clock.showDrawError(ev.error || ev.message); });
   function boot() {
     // khoá chiều dọc (chỉ chạy được khi cài PWA/toàn màn hình; lỗi thì bỏ qua)
     try { var lk = screen.orientation && screen.orientation.lock && screen.orientation.lock('portrait'); if (lk && lk.catch) lk.catch(function () {}); } catch (e) {}
