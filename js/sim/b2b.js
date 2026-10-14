@@ -23,8 +23,8 @@
       var main = G.weighted(ok, function (b) { return b.tier; });
       var rooms = G.randInt(12, 30) * (s.level >= 4 ? 2 : 1), items = [];
       function pickSku(type, sizes) {
-        var pool = G.skuList.filter(function (k) { return k.type === type && k.brand === main.id && G.life.stage(k.id) < 3 && sizes.indexOf(k.size) >= 0; });
-        if (!pool.length) pool = G.skuList.filter(function (k) { return k.type === type && ok.some(function (b) { return b.id === k.brand; }) && G.life.stage(k.id) < 3 && sizes.indexOf(k.size) >= 0; });
+        var pool = G.skuList.filter(function (k) { return k.type === type && k.brand === main.id && G.life.stage(k.id) < 3 && G.purchasing.skuOk('daily', k.id) && sizes.indexOf(k.size) >= 0; });
+        if (!pool.length) pool = G.skuList.filter(function (k) { return k.type === type && ok.some(function (b) { return b.id === k.brand; }) && G.life.stage(k.id) < 3 && G.purchasing.skuOk('daily', k.id) && sizes.indexOf(k.size) >= 0; });
         if (type === 'ga') { var wh = pool.filter(function (k) { return k.cw && (k.cw.fam === 'trang' || k.cw.fam === 'be'); }); if (wh.length) pool = wh; } // khách sạn đặt bộ trắng / ngà
         return pool.length ? G.pick(pool) : null;
       }
@@ -50,11 +50,41 @@
       var rows = G.ui.itemGrid(o.items.map(function (i) { return { sku: i.sku, qty: i.qty, sub: 'tồn ' + G.wh.total(i.sku) }; }));
       return '<p><b>' + G.esc(o.client) + '</b> muốn đặt hàng số lượng lớn.</p>' + rows + '<table class="tbl small"><tr><td>Giá trị đơn</td><td class="r"><b>' + G.fmt.vnd(o.value) + '</b></td></tr><tr><td>Tiền cọc (nhận ngay)</td><td class="r">' + G.fmt.vnd(o.deposit) + '</td></tr><tr><td>Hạn giao</td><td class="r">ngày ' + o.deadline + ' (còn ' + (o.deadline - G.state.day) + ' ngày)</td></tr><tr><td>Phạt nếu trễ</td><td class="r neg">' + G.fmt.vnd(o.penalty) + ' + mất uy tín</td></tr></table>' + (o.negotiated ? '<p class="muted small">Đã đàm phán một lần.</p>' : '') + '<p class="muted small">Cần đủ hàng và NV Giao hàng (hoặc thuê xe ngoài); đơn lớn giao nhiều chuyến.</p>';
     },
+    // NV Sale B2B tư vấn: nên nhận / cân nhắc / không nên
+    advise: function (o) {
+      var s = G.state, cost = 0, missing = 0, need = 0, vol = 0, obsolete = 0, unbuyable = 0, why = [], lvl = 1;
+      o.items.forEach(function (i) {
+        var k = G.skus[i.sku], have = G.wh.total(i.sku) + (G.wh.incomingQty ? G.wh.incomingQty(i.sku) : 0), miss = Math.max(0, i.qty - have);
+        cost += i.qty * (s.costBasis[i.sku] || k.cost); missing += miss; need += miss * k.cost; vol += i.qty * k.vol;
+        if (G.life.stage(i.sku) >= 3) obsolete++;
+        if (!G.purchasing.skuOk('daily', i.sku) && have < i.qty) unbuyable++;
+      });
+      var margin = o.value > 0 ? (o.value - cost) / o.value : 0, daysLeft = o.deadline - s.day;
+      var tripsNeed = Math.ceil(vol / Math.max(1, G.shipping.TRIP_VOL())), perDay = Math.max(1, G.shipping.tripsCap()), daysNeed = Math.ceil(tripsNeed / perDay) + (missing > 0 ? 3 : 0);
+      var cashOk = s.money + o.deposit >= need;
+      if (margin < 0.05) { lvl = 3; why.push('lãi gộp chỉ ~' + Math.round(margin * 100) + '%, không đáng rủi ro phạt'); }
+      else if (margin < 0.12) { lvl = Math.max(lvl, 2); why.push('lãi gộp mỏng ~' + Math.round(margin * 100) + '%'); }
+      else why.push('lãi gộp tốt ~' + Math.round(margin * 100) + '%');
+      if (missing > 0) { why.push('còn thiếu ' + missing + ' sản phẩm phải nhập (~' + G.fmt.short(need) + ')'); if (!cashOk) { lvl = 3; why.push('tiền mặt + cọc chưa đủ để nhập'); } }
+      else why.push('đủ hàng trong kho');
+      if (daysNeed > daysLeft) { lvl = Math.max(lvl, G.staff.count('delivery') ? 2 : 3); why.push('cần ~' + daysNeed + ' ngày giao nhưng chỉ còn ' + daysLeft + ' ngày' + (G.staff.count('delivery') ? '' : ' (chưa có NV Giao hàng)')); }
+      else why.push('kịp hạn giao (~' + daysNeed + '/' + daysLeft + ' ngày)');
+      if (unbuyable) { lvl = 3; why.push(unbuyable + ' mặt hàng hiện không có trong danh sách nhập của hãng, không đủ hàng để giao'); }
+      if (obsolete) { lvl = Math.max(lvl, 2); why.push(obsolete + ' mẫu đã lỗi thời, lãi/giá có thể kém'); }
+      var verdict = lvl === 1 ? 'NÊN NHẬN' : lvl === 2 ? 'CÂN NHẮC' : 'KHÔNG NÊN NHẬN';
+      return { level: lvl, verdict: verdict, why: why, margin: margin };
+    },
+    adviceHtml: function (o) {
+      var n = B.bestNegotiator();
+      if (!n) return '<div class="card small muted">💬 Chưa có NV Sale B2B để tư vấn nên nhận hay không. Thuê NV Sale B2B để được đánh giá đơn và đàm phán giá.</div>';
+      var a = B.advise(o), cls = a.level === 1 ? 'pos' : a.level === 2 ? '' : 'neg';
+      return '<div class="card small">💬 <b>' + G.esc(n.name || 'NV Sale B2B') + '</b> tư vấn: <b class="' + cls + '">' + a.verdict + '</b><ul style="margin:4px 0 0 18px">' + a.why.map(function (w) { return '<li>' + w + '</li>'; }).join('') + '</ul></div>';
+    },
     showOffer: function (id) {
       var o = B.offerById(id); if (!o || o.status !== 'Chờ quyết định') return;
       var neg = B.bestNegotiator();
       G.notify.modal({
-        title: 'Đơn lớn: ' + o.client, sound: 'alert', def: 1, html: B.offerHtml(o),
+        title: 'Đơn lớn: ' + o.client, sound: 'alert', def: 1, html: B.offerHtml(o) + B.adviceHtml(o),
         choices: [
           { label: 'Nhận đơn', cls: 'primary', fn: function () { B.accept(id); } },
           { label: 'Từ chối', cls: 'danger', fn: function () { B.reject(id); } },
@@ -137,6 +167,32 @@
       else { st.done++; st.earned += pay; s.rep = G.clamp(s.rep + 6, 0, 100); G.reviews.add(5, { b2b: o.id }); G.reviews.add(5, { b2b: o.id }); }
       G.notify.push({ title: (failed ? 'Đơn lớn thất bại: ' : late ? 'Giao trễ: ' : 'Giao đúng hạn: ') + o.client, text: failed ? 'Khách hủy, phạt ' + G.fmt.short(o.penalty) + ', mất uy tín lớn.' : (late ? 'Bị phạt ' + G.fmt.short(o.penalty) + ' và mất uy tín.' : 'Nhận ' + G.fmt.short(pay) + ' và +6 danh tiếng!'), type: failed || late ? 'bad' : 'good', sound: failed || late ? 'bad' : 'good' });
       G.emit('b2bSettled', o);
+    },
+    // người chơi chủ động huỷ hợp đồng: trả lại phần cọc chưa tương ứng hàng đã giao, chịu phạt huỷ
+    cancelInfo: function (o) {
+      var tot = 0, d = 0; o.items.forEach(function (i) { tot += i.qty; d += i.done; });
+      var pay = Math.round(o.value * (tot ? d / tot : 0)), fee = Math.round(o.penalty * 0.7 / 10000) * 10000;
+      return { pay: pay, fee: fee, net: pay - o.deposit - fee };
+    },
+    confirmCancel: function (id) {
+      var o = B.orderById(id); if (!o || o.status !== 'Đang thực hiện') return;
+      var c = B.cancelInfo(o);
+      G.notify.modal({
+        title: 'Huỷ đơn ' + o.client + '?', def: 1,
+        html: '<table class="tbl small"><tr><td>Hoàn lại tiền cọc</td><td class="r neg">-' + G.fmt.vnd(o.deposit) + '</td></tr><tr><td>Thanh toán phần đã giao</td><td class="r">+' + G.fmt.vnd(c.pay) + '</td></tr><tr><td>Phạt huỷ hợp đồng</td><td class="r neg">-' + G.fmt.vnd(c.fee) + '</td></tr><tr><td><b>Tiền mặt thay đổi</b></td><td class="r ' + (c.net < 0 ? 'neg' : 'pos') + '"><b>' + G.fmt.vnd(c.net) + '</b></td></tr></table><p class="muted small">Mất 4 điểm danh tiếng. Hàng đã giao không thu hồi được.</p>',
+        choices: [{ label: 'Huỷ hợp đồng', cls: 'danger', fn: function () { B.cancel(id); } }, { label: 'Giữ đơn', cls: 'primary', fn: function () {} }]
+      });
+    },
+    cancel: function (id) {
+      var s = G.state, o = B.orderById(id); if (!o || o.status !== 'Đang thực hiện') return { ok: false, msg: 'Đơn không còn hoạt động' };
+      var c = B.cancelInfo(o);
+      if (c.pay) G.econ.recognize(c.pay);
+      G.econ.cash(c.pay - o.deposit);
+      G.econ.expense(c.fee, 'penalty');
+      o.status = 'Đã huỷ'; o.paid = true; o.cancelable = false; o.settleDay = s.day;
+      s.rep = G.clamp(s.rep - 4, 0, 100); G.reviews.add(2, { b2b: o.id });
+      G.notify.push({ title: 'Đã huỷ đơn ' + o.client, text: 'Phạt huỷ hợp đồng ' + G.fmt.short(c.fee) + ', hoàn cọc ' + G.fmt.short(o.deposit) + '.', type: 'warn', sound: false });
+      return { ok: true, msg: 'Đã huỷ đơn ' + o.client + ', phạt ' + G.fmt.vnd(c.fee) };
     },
     // Pass 3: khách bỏ cọc đơn B2B
     customerCancel: function (id) {
