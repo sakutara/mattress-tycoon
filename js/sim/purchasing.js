@@ -38,11 +38,11 @@
       // đang có đơn lớn / đơn cọc cần chính mẫu này thì luôn nhập được (kể cả mẫu lỗi thời, hãng bị cắt)
       if (PU.committed(sku) > 0) return true;
       if (!G.brandAvail(t.brand)) return false;
-      // mẫu lỗi thời: vẫn nhập được khi 3 ngày gần đây có khách hỏi hết hàng (khớp gợi ý của thủ kho)
+      // mẫu lỗi thời: vẫn nhập được khi 7 ngày gần đây có khách hỏi hết hàng (cùng cửa sổ với bộ đếm nhu cầu ở lookbook)
       return G.life.stage(sku) < 3 || PU.askedRecently(sku);
     },
     askedRecently: function (sku) {
-      var s = G.state; return (s.lostLog || []).some(function (e) { return e.sku === sku && s.day - e.day <= 3; });
+      var s = G.state; return (s.lostLog || []).some(function (e) { return e.sku === sku && s.day - e.day <= 7; });
     },
     committed: function (sku) {
       var s = G.state, c = 0;
