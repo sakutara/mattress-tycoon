@@ -86,7 +86,10 @@
     var s = G.state, h = '';
     var sp = s.special.list;
     h += '<h4>Đơn đặt riêng có cọc (' + sp.filter(function (o) { return o.status === 'Chờ xử lý' || o.status === 'Đã nhận cọc'; }).length + ')</h4><p class="muted small">Khách hỏi mẫu chưa có: nhận cọc 30%, nhập hàng rồi giao trong 10 ngày. Quá hạn phải hoàn cọc.</p>';
-    sp.slice().reverse().slice(0, 8).forEach(function (o) { h += depCard(o); });
+    function isOpen(o) { return o.status === 'Chờ xử lý' || o.status === 'Đã nhận cọc'; }
+    var openL = sp.filter(isOpen).sort(function (a, b) { return a.due - b.due; });   // chưa giao: gần hạn nhất lên đầu
+    var doneL = sp.filter(function (o) { return !isOpen(o); }).reverse().slice(0, 8);
+    openL.concat(doneL).forEach(function (o) { h += depCard(o); });
     if (!sp.length) h += '<p class="muted small">Chưa có đơn đặt cọc nào.</p>';
     return h;
   }
@@ -121,7 +124,7 @@
       var left = o.deadline - s.day, tot = 0, done = 0; o.items.forEach(function (i) { tot += i.qty; done += i.done; });
       h += '<div class="card"><b>' + E(o.client) + '</b> <span class="chipx ' + (left < 0 ? 'neg' : left <= 2 ? 'neg' : 'st-go') + '">' + (left >= 0 ? 'còn ' + left + ' ngày' : 'TRỄ ' + (-left) + ' ngày') + '</span><br><span class="small">Giá trị ' + F.vnd(o.value) + ' · đã cọc ' + F.short(o.deposit) + ' · phạt trễ ' + F.short(o.penalty) + '</span>' + UI.bar(done / tot, left < 0 ? 'bad' : 'good') +
         UI.itemGrid(o.items.map(function (i) { var av = G.wh.total(i.sku); return { sku: i.sku, qty: i.qty, sub: 'giao ' + i.done + '/' + i.qty + '<br><b class="' + (av >= i.qty - i.done ? 'pos' : 'neg') + '">có ' + av + '</b>' }; })) +
-        '<div class="row"><button class="mini primary" data-act="b2bTrip" data-id="' + o.id + '" data-m="own">Giao 1 chuyến (NV)</button><button class="mini" data-act="b2bTrip" data-id="' + o.id + '" data-m="hire">Thuê xe giao 1 chuyến</button></div></div>';
+        '<div class="row"><button class="mini primary" data-act="b2bTrip" data-id="' + o.id + '" data-m="own">Giao 1 chuyến (NV)</button><button class="mini" data-act="b2bTrip" data-id="' + o.id + '" data-m="hire">Thuê xe giao 1 chuyến</button><button class="mini danger" data-act="b2bCancel" data-id="' + o.id + '">Huỷ đơn</button></div></div>';
     });
     var hist = s.b2b.orders.filter(function (o) { return o.status !== 'Đang thực hiện'; }).slice(-5).reverse();
     if (hist.length) h += '<h4>Gần đây</h4><table class="tbl small">' + hist.map(function (o) { return '<tr><td>' + E(o.client) + '</td><td class="r">' + F.short(o.value) + '</td><td>' + o.status + '</td></tr>'; }).join('') + '</table>';
@@ -129,6 +132,7 @@
   }
   P.chg.b2bAuto = function (el) { G.state.b2b.auto = el.checked; };
   P.act.b2bView = function (el) { G.b2b.showOffer(+el.dataset.id); };
+  P.act.b2bCancel = function (el) { G.b2b.confirmCancel(+el.dataset.id); };
   P.act.b2bTrip = function (el) { res(G.b2b.trip(+el.dataset.id, el.dataset.m)); };
 
   P.register({ id: 'ship', label: 'Giao hàng', after: 'staff', render: shipTab, badge: function () { return G.shipping.pendingCount(); } });

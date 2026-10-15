@@ -35,7 +35,15 @@
       if (srcId === 'cho' && t.brand !== 'cho') return false;
       if (srcId === 'oem' && t.brand !== 'own') return false;
       if ((srcId === 'daily' || srcId === 'nhamay') && (t.brand === 'cho' || t.brand === 'own')) return false;
+      // đang có đơn lớn / đơn cọc cần chính mẫu này thì luôn nhập được (kể cả mẫu lỗi thời, hãng bị cắt)
+      if (PU.committed(sku) > 0) return true;
       return G.brandAvail(t.brand) && G.life.stage(sku) < 3;
+    },
+    committed: function (sku) {
+      var s = G.state, c = 0;
+      s.special.list.forEach(function (o) { if (o.sku === sku && o.status === 'Đã nhận cọc') c += Math.max(0, (o.qty || 1) - (o.held || 0)); });
+      s.b2b.orders.forEach(function (o) { if (o.status === 'Đang thực hiện') o.items.forEach(function (i) { if (i.sku === sku) c += i.qty - i.done; }); });
+      return c;
     },
     modMult: function (sku) {
       var t = G.skus[sku], m = 1;
