@@ -116,7 +116,7 @@
       if (!cand.length) { return 0; }
       if (cur) { cand = cand.filter(function (p) { return !cur.items.some(function (i) { return i.sku === p.sku; }); }); if (!cand.length) return 0; }
       else { cur = a.batch = { id: a.nextBatch++, day: s.day, status: 'open', items: [], shown: false, mid: !!urgentOnly }; }
-      cand.sort(function (x, y) { return (x.tier || 9) - (y.tier || 9) || (x.minDays || 99) - (y.minDays || 99); });
+      cand.sort(function (x, y) { return G.suggest.rank(x) - G.suggest.rank(y) || (x.minDays || 99) - (y.minDays || 99); });
       // đơn khách (nhóm 1) không bao giờ bị cắt; các nhóm còn lại tối đa 12 dòng/ngày để danh sách duyệt gọn
       var room = Math.max(0, 12 - cur.items.filter(function (i) { return i.tier !== 1; }).length);
       cand = cand.filter(function (p) { return p.tier === 1; }).concat(cand.filter(function (p) { return p.tier !== 1; }).slice(0, room));
