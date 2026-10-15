@@ -144,7 +144,7 @@ Mỗi dòng có số lượng nên nhập (theo tốc độ bán, mùa, thời g
 - Chế độ: **Duyệt danh sách** (mặc định cho game mới) / Duyệt từng món / Tự động; có Tạm dừng, ngân sách tháng, mức dự trữ tối đa theo số ngày bán.
 - **Bảng "Thủ kho đề xuất mua hàng"** (hiện khi vào lúc chuẩn bị, hoặc bấm chip trên bảng chuẩn bị): thẻ từng mặt hàng có ảnh, mã màu, lý do ("3 khách hỏi mẫu EV-2405 hết hàng", "đơn cọc", "đơn lớn B2B", "livestream sắp tới", "dự báo rét"…), ô chọn, số lượng chỉnh được, nguồn nhập chọn được kèm giá và thời gian về, nhóm theo nguồn với tổng từng nguồn, kiểm tra tiền mặt / ngân sách / sức chứa kho. Nút: *Duyệt đã chọn*, *Duyệt tất cả*, *Để sau*, *Bỏ qua hôm nay*.
 - **Đơn khách (nhóm 1) luôn đứng đầu, được chọn sẵn và không bị cắt**; các nhóm còn lại tối đa 12 dòng/ngày. Khi chỉ vài khách hỏi, số lượng bám theo nhu cầu và chuyển sang đại lý (không MOQ) thay vì nhập cả lô nhà máy.
-- **Thứ tự ưu tiên nhập:** đơn khách đặt → mẫu khách hỏi → mẫu thịnh hành / mới ra mắt (cùng nhóm thì xếp trước mẫu bình thường). **Mẫu lỗi thời** chỉ được đề xuất nhập khi có khách hỏi hoặc khách đặt (cọc, đơn B2B); không nhập theo kệ, mùa vụ hay tốc độ bán.
+- **Thứ tự ưu tiên nhập:** đơn lớn (B2B) → đơn đặt hàng (cọc) → mẫu khách hỏi mà hết hàng → mẫu thịnh hành → còn lại (mẫu trưng bày sắp hết, bán chạy, mùa vụ, mẫu mới). **Mẫu lỗi thời** chỉ được đề xuất nhập khi có khách hỏi hoặc khách đặt (cọc, đơn B2B); không nhập theo kệ, mùa vụ hay tốc độ bán.
 - Lưu lịch sử đề xuất.
 
 ---

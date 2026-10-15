@@ -146,7 +146,7 @@
     });
     rows.sort(function (a, b) {
       if (a.action !== b.action) return a.action === 'order' ? -1 : 1;
-      if (a.tier !== b.tier) return a.tier - b.tier;
+      var ra = S.rank(a), rb = S.rank(b); if (ra !== rb) return ra - rb;
       var da = a.cust ? a.cust.minDays : 99, db = b.cust ? b.cust.minDays : 99; if (da !== db) return da - db;
       var sa = a.stage >= 3 ? 2 : a.stage === 2 ? 1 : 0, sb = b.stage >= 3 ? 2 : b.stage === 2 ? 1 : 0;   // mới ra mắt / thịnh hành nhập trước, lỗi thời sau cùng
       if (sa !== sb) return sa - sb;
@@ -154,6 +154,14 @@
       return (b.chosen ? b.chosen.cash : 0) - (a.chosen ? a.chosen.cash : 0);
     });
     S.cache = { rows: rows, helper: hp }; S.ct = now; return S.cache;
+  };
+  // thứ tự ưu tiên nhập: đơn lớn B2B → đơn đặt (cọc) → livestream → khách hỏi hết hàng → mẫu thịnh hành → còn lại theo tầng
+  S.rank = function (r) {
+    var t = r.tier || 9, tg = r.tags || [];
+    if (t === 1) return tg.indexOf('Đơn đang mở') >= 0 ? 1 : tg.indexOf('Đơn cọc') >= 0 ? 1.1 : 1.2;
+    if (t === 2) return 2;
+    if (t < 7 && G.life.stage(r.sku) === 1) return 2.5;
+    return t;
   };
   S.count = function () { return S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier <= 3 && !r.inBatch && !S.inCart(r); }).length; };   // số gợi ý có ý nghĩa (tầng 1-3)
   S.countCust = function () { return S.compute().rows.filter(function (r) { return r.action === 'order' && r.tier === 1 && !S.inCart(r); }).length; };
