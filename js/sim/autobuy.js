@@ -55,6 +55,9 @@
         if (t.type === 'chan' && G.weather && G.weather.forecast().some(function (d) { return d.t === 'ret'; })) qty = Math.ceil(qty * 1.3);
         // chỉ vài khách hỏi (không phải đơn cọc/B2B) thì đừng nhập cả lô: ~2 sản phẩm cho mỗi khách hỏi + nhu cầu 1 tuần; nếu nguồn đòi tối thiểu (MOQ) thì dùng số lượng gốc
         var origQty = qty, isOrder = r.tier === 1 || r.tags.indexOf('Đơn cọc') >= 0 || r.tags.indexOf('Đơn đang mở') >= 0;
+        // đơn lớn / đơn cọc (kể cả mẫu lỗi thời): luôn nhập đủ phần còn thiếu, không bị cắt bởi trần tồn theo tốc độ bán
+        var shortfall = Math.max(0, (r.commit || 0) - (r.have || 0));
+        if (isOrder && qty < shortfall) { qty = shortfall; origQty = qty; }
         if (!isOrder && lost >= 1 && r.have <= 0) qty = Math.min(qty, Math.max(2, lost * 2 + Math.ceil(vel * 7)));
         var mk = function (n) { var m = {}; m[r.sku] = n; return m; };
         var srcUse = c.src, q = G.purchasing.quote(srcUse, mk(qty), 'st', false);
