@@ -56,7 +56,7 @@
     },
     incomingQty: function (sku) { var t = 0; (G.state.orders || []).forEach(function (o) { if (o.status !== 'Đã về kho' && o.items[sku]) t += o.items[sku]; }); G.state.transfers.forEach(function (tr) { if (tr.sku === sku) t += tr.qty; }); return t; },
     // khoảng cách từ cửa hàng tới loc
-    dist: function (loc) { return loc === 'st' ? 0 : G.whById[loc].dist; },
+    dist: function (loc) { return loc === 'st' || !G.whById[loc] ? 0 : G.whById[loc].dist; },
     transportMult: function () {
       var m = 1; if (G.staff && G.staff.count('warehouse') > 0) m *= 0.85; if (G.state.ownTruck) m *= 0.7; return m;
     },

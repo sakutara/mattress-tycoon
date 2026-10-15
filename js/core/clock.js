@@ -40,14 +40,27 @@
       if (!s.prep) G.emit('shopOpen', { day: s.day });
       if (!C.skipping && G.save) G.save.save();
     },
+    // lỗi vẽ: không để chết cả vòng lặp, hiện chi tiết lên canvas để chẩn đoán trên thiết bị
+    showDrawError: function (e) {
+      var msg = String(e && e.message || e), st = String(e && e.stack || '').split('\n').slice(0, 4).join('\n');
+      if (C._lastErr !== msg) { C._lastErr = msg; try { console.error('[draw]', e); } catch (x) {} }
+      try {
+        var cv = document.getElementById('shop'), ctx = cv && cv.getContext('2d'); if (!ctx) return;
+        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.fillStyle = '#c00'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'left';
+        var lines = ['LỖI VẼ: ' + msg].concat(st.split('\n').map(function (l) { return l.trim(); })).concat([navigator.userAgent, 'dpr=' + window.devicePixelRatio + ' win=' + innerWidth + 'x' + innerHeight + ' cv=' + cv.width + 'x' + cv.height]);
+        var y = 22, maxW = cv.width - 16;
+        lines.forEach(function (ln) { while (ln.length) { var n = ln.length; while (n > 1 && ctx.measureText(ln.slice(0, n)).width > maxW) n--; ctx.fillText(ln.slice(0, n), 8, y); y += 18; ln = ln.slice(n); } });
+      } catch (x) {}
+    },
     start: function () {
       var last = performance.now(), uiAcc = 0;
       function frame(ts) {
         var dt = Math.min(0.2, (ts - last) / 1000); last = ts;
         if (!C.isPaused()) C.advance(dt * G.state.speed * 60 / C.SEC_PER_HOUR);
-        if (G.render && G.render.draw) G.render.draw(dt);
+        if (G.render && G.render.draw) { try { G.render.draw(dt); } catch (e) { C.showDrawError(e); } }
         uiAcc += dt;
-        if (uiAcc > 0.25) { uiAcc = 0; G.emit('uiRefresh'); }
+        if (uiAcc > 0.25) { uiAcc = 0; try { G.emit('uiRefresh'); } catch (e) { C.showDrawError(e); } }
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
