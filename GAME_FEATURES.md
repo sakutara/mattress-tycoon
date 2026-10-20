@@ -398,3 +398,21 @@ Mã ở `js/sim/quests.js` (logic, `G.quests`) và `js/ui/questsui.js` (tab **Th
 - **Thưởng:** tiền mặt qua `G.econ.cash` (không vào doanh thu/thuế/lãi). Đơn vị thưởng = 4% doanh thu trung bình 5 ngày gần nhất, tối thiểu theo cấp (100k → 15tr), nên tự co giãn theo quy mô cửa hàng.
 - **Thành tựu:** 33 mốc một lần (số đơn, doanh thu tích lũy, cấp, danh tiếng, 5 sao, điểm trung bình, phản hồi, giao hàng, cọc, livestream, nhập hàng, họp, đội ngũ, số ngày, chuỗi nhiệm vụ…), mở tự động và nhận thưởng bằng nút. **Các bộ đếm tích lũy (đơn, đánh giá…) chỉ tính từ khi có tính năng này**; mốc cấp/danh tiếng/doanh thu/ngày tính theo tiến trình sẵn có.
 - **Chưa cân bằng:** mục tiêu và mức thưởng là số khởi đầu, mới thử bằng `G.debug.skipDays`, chưa chơi thật.
+
+---
+
+## 25. Phúc lợi nhân viên: team building & thưởng lễ Tết
+
+Mã ở `js/sim/welfare.js` (`G.welfare`) và `js/ui/welfareui.js`; mở ở **Nhân viên → Phúc lợi**. Trạng thái ở `G.state.welfare`. Chi phí ghi vào hai mục mới trong báo cáo: *Team building* (`welfare`) và *Thưởng lễ Tết* (`bonus`).
+
+- **Team building** (đặt lịch từ ngày mai tới 7 ngày sau, chỉ một buổi chờ cùng lúc, có thời gian chờ giữa hai lần, chi phí theo số người tính cả chủ):
+
+| Hoạt động | Chi phí/người | Đóng cửa | Hài lòng | Khác | Chờ |
+|---|---|---|---|---|---|
+| Liên hoan sau giờ làm | 120k | không | +5 | — | 14 ngày |
+| Team building nửa ngày | 400k | tới 13h | +10 | giảm mệt, +5% hiệu suất 3 ngày, +3 XP | 21 ngày |
+| Dã ngoại cả ngày (từ cấp 1) | 900k | cả ngày | +18 | hết mệt, +8% hiệu suất 5 ngày, +6 XP | 45 ngày |
+
+  Buổi diễn ra lúc bắt đầu ngày đã đặt; chỉ nhân viên đang đi làm (không nghỉ phép/đang học) nhận hiệu quả. Không đặt được vào ngày có training tập thể (khi đóng cửa).
+- **Thưởng lễ Tết:** đúng ngày lễ (lịch game) hiện hộp thoại hỏi mức thưởng: Tết Nguyên Đán (20/1, báo trước 5 ngày; 1 tháng / nửa tháng / lì xì 10% lương, **không thưởng bị -10 hài lòng**), 8/3, 30/4, Trung thu (15/9), 20/10, Giáng sinh (24/12) với mức nhỏ hơn và không thưởng thì không bị trừ. Mỗi lễ hỏi một lần mỗi năm game. Nhân viên làm dưới 3 tháng nhận theo tỉ lệ thâm niên (tối thiểu 30%). Thiếu tiền thì không chi được và nhân viên thất vọng.
+- **Chưa cân bằng:** mọi con số là giá trị khởi đầu, mới thử bằng `skipDays` và cỡ điện thoại; chưa chơi thật. Khi tua nhanh (`skipDays`) hộp thoại thưởng tự chọn mức "nửa tháng" (hoặc mức thấp hơn của lễ nhỏ).

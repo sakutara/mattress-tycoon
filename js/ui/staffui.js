@@ -5,7 +5,7 @@
   function I() { return G.icon.apply(null, arguments); }
   var RI = { sales: 'user', b2b: 'hotel', accountant: 'receipt', warehouse: 'box', delivery: 'truck', marketing: 'megaphone', cskh: 'shield', manager: 'crown' };
   var BEN = { sales: 'Tư vấn khách, chốt đơn nhiều hơn', b2b: 'Nhiều đơn khách sạn, đàm phán giá', accountant: 'Giảm thuế/phí, báo cáo chi tiết', warehouse: 'Tự bổ sung kệ, kiểm hàng, gợi ý nhập', delivery: 'Giao đơn tại nhà trong ngày, miễn phí ship', marketing: 'Thêm khách, chạy chiến dịch', cskh: 'Tự xử lý bảo hành / đổi trả & phản hồi đánh giá', manager: 'Buff cả đội, tự chia ca' };
-  var SUBS = [['team', 'Đội ngũ', 'people'], ['hire', 'Tuyển dụng', 'user2'], ['sched', 'Lịch ca', 'clock'], ['train', 'Đào tạo', 'book'], ['room', 'Phòng NV', 'cup'], ['meeting', 'Họp', 'chat']];
+  var SUBS = [['team', 'Đội ngũ', 'people'], ['hire', 'Tuyển dụng', 'user2'], ['sched', 'Lịch ca', 'clock'], ['train', 'Đào tạo', 'book'], ['room', 'Phòng NV', 'cup'], ['meeting', 'Họp', 'chat'], ['welfare', 'Phúc lợi', 'gift']];
   UI.st.staffFilter = ''; UI.st.hireRole = ''; UI.st.staffSel = null; UI.st.staffInfo = false; UI.st.fireAsk = null;
   // ---- ảnh chibi (cache) ----
   var TH = {};
@@ -151,9 +151,9 @@
   }
   function roomView() { return UI.staffOld.roomCard() || '<p class="muted">Chưa mở khóa.</p>'; }
   UI.staffTab = function () {
-    var st = UI.st, sub = st.staffSub; if (['team', 'hire', 'sched', 'train', 'room', 'meeting'].indexOf(sub) < 0) sub = st.staffSub = sub === 'list' ? 'team' : 'team';
+    var st = UI.st, sub = st.staffSub; if (['team', 'hire', 'sched', 'train', 'room', 'meeting', 'welfare'].indexOf(sub) < 0) sub = st.staffSub = sub === 'list' ? 'team' : 'team';
     var h = summary() + '<div class="segs sg5">' + SUBS.map(function (x) { return '<button class="seg' + (sub === x[0] ? ' on' : '') + '" data-act="staffSub" data-id="' + x[0] + '">' + I(x[2], 16) + '<span>' + x[1] + '</span></button>'; }).join('') + '</div>';
-    return h + ({ team: teamView, hire: hireView, sched: schedView, train: trainView, room: roomView, meeting: function () { return UI.meetingView ? UI.meetingView() : ''; } }[sub])();
+    return h + ({ team: teamView, hire: hireView, sched: schedView, train: trainView, room: roomView, meeting: function () { return UI.meetingView ? UI.meetingView() : ''; }, welfare: function () { return UI.welfareView(); } }[sub])();
   };
   var A = P.act;
   A.staffFilter = function (el) { UI.st.staffFilter = el.dataset.id; };
