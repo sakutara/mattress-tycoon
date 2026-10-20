@@ -370,7 +370,7 @@ Các module giao tiếp qua `G.on/G.emit` (sự kiện: `tick`, `hour`, `dayStar
 - Hướng dẫn NPC (Bác Tư & Mai) **đã gắn vào game** (mục 23) nhưng mới được thử bằng bot giả lập thao tác trong trình duyệt; **chưa thử bằng cảm ứng thật**, chưa thử trên desktop rộng, và camera/thời tiết trong từng cảnh chỉ là cảnh vẽ riêng trong hộp thoại chứ không điều khiển cửa hàng thật.
 - Không dùng git (không có lịch sử thay đổi).
 
-**Ý tưởng chưa làm:** bán online kênh khác ngoài livestream, đối thủ cạnh tranh, vay ngân hàng/trả góp, thành tựu & nhiệm vụ hằng ngày, mở rộng cốt truyện.
+**Ý tưởng chưa làm:** bán online kênh khác ngoài livestream, đối thủ cạnh tranh, vay ngân hàng/trả góp, mở rộng cốt truyện.
 
 ---
 
@@ -386,3 +386,15 @@ Thiết kế chi tiết ở [NPC_HUONG_DAN.md](NPC_HUONG_DAN.md); mã ở `js/ui
 - **Thử nghiệm:** `G.debug.tutorial(i)` chạy hướng dẫn từ bước `i`; `G.debug.skipTutorial()` bỏ qua.
 - **Sửa kèm theo:** hàng khởi điểm trước đây chiếm 112,5 trên sức chứa kho 60 nên người mới không đặt được đơn nhập nào ở ngày 1; đã giảm xuống khoảng 31,5.
 - **Sửa lỗi hiển thị tab Kho:** ô hàng trong lưới "Tồn kho" (`js/ui/panels.js`) có thuộc tính `title=""` thừa dấu nháy làm vỡ HTML; đã sửa thành `title="<tên mặt hàng>"` (tooltip tên đầy đủ) và tăng số phiên bản tài nguyên lên `20261010a1`.
+
+---
+
+## 24. Nhiệm vụ hằng ngày & Thành tựu
+
+Mã ở `js/sim/quests.js` (logic, `G.quests`) và `js/ui/questsui.js` (tab **Thêm → Nhiệm vụ**, có chấm đỏ khi có thưởng chờ nhận); trạng thái ở `G.state.quests`.
+
+- **Nhiệm vụ ngày:** mỗi ngày (lúc `dayStart`) chọn ngẫu nhiên 3 trong 12 mẫu: chốt N đơn, doanh thu ngày đạt X (X = 110% trung bình 3 ngày gần nhất, có sàn theo cấp), bán kèm, 5 sao, phản hồi đánh giá, đặt nhập hàng, giao thành công, đơn đặt cọc, livestream, và 3 mẫu chấm cuối ngày (không khách bỏ vì hết hàng, không bỏ vì chờ lâu, kết ngày có lãi). Mẫu cần cấp/điều kiện (ship, cọc, live, phản hồi) chỉ xuất hiện khi phù hợp. Nhận thưởng bằng nút; nhiệm vụ chưa nhận sẽ mất khi sang ngày.
+- **Chuỗi & rương:** xong cả 3 nhiệm vụ thì có **rương** (tiền + 1 danh tiếng), chuỗi ngày liên tiếp càng dài rương càng lớn (tối đa ở 7 ngày); bỏ lỡ một ngày thì chuỗi về 0.
+- **Thưởng:** tiền mặt qua `G.econ.cash` (không vào doanh thu/thuế/lãi). Đơn vị thưởng = 4% doanh thu trung bình 5 ngày gần nhất, tối thiểu theo cấp (100k → 15tr), nên tự co giãn theo quy mô cửa hàng.
+- **Thành tựu:** 33 mốc một lần (số đơn, doanh thu tích lũy, cấp, danh tiếng, 5 sao, điểm trung bình, phản hồi, giao hàng, cọc, livestream, nhập hàng, họp, đội ngũ, số ngày, chuỗi nhiệm vụ…), mở tự động và nhận thưởng bằng nút. **Các bộ đếm tích lũy (đơn, đánh giá…) chỉ tính từ khi có tính năng này**; mốc cấp/danh tiếng/doanh thu/ngày tính theo tiến trình sẵn có.
+- **Chưa cân bằng:** mục tiêu và mức thưởng là số khởi đầu, mới thử bằng `G.debug.skipDays`, chưa chơi thật.

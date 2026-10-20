@@ -8,7 +8,7 @@
     { id: 'stock', label: 'Kho', icon: '📦', tabs: ['stock', 'price', 'decor'] },
     { id: 'buy', label: 'Nhập', icon: '🛒', tabs: ['buy', 'cart', 'ship', 'deposit', 'b2b'] },
     { id: 'staff', label: 'Nhân viên', icon: '👥', tabs: ['staff'] },
-    { id: 'more', label: 'Thêm', icon: '☰', tabs: ['more', 'report', 'upgrade', 'warranty', 'rev', 'debts', 'camp', 'live'] }
+    { id: 'more', label: 'Thêm', icon: '☰', tabs: ['more', 'quests', 'report', 'upgrade', 'warranty', 'rev', 'debts', 'camp', 'live'] }
   ];
   P.sheetOpen = false;
   // tab chỉ hiện khi liên quan
@@ -28,7 +28,7 @@
   // trang "Thêm": danh sách các mục còn lại
   P.register({ id: 'more', label: 'Menu', render: function () {
     var s = G.state, h = '<div class="more-grid">';
-    [['report', '📊', 'Báo cáo'], ['upgrade', '⬆', 'Nâng cấp'], ['warranty', '🛠', 'Bảo hành'], ['rev', '⭐', 'Đánh giá'], ['debts', '💸', 'Công nợ khó đòi'], ['camp', '📣', 'Sự kiện & Ưu đãi'], ['live', '🎥', 'Livestream']].forEach(function (x) {
+    [['quests', '🎯', 'Nhiệm vụ'], ['report', '📊', 'Báo cáo'], ['upgrade', '⬆', 'Nâng cấp'], ['warranty', '🛠', 'Bảo hành'], ['rev', '⭐', 'Đánh giá'], ['debts', '💸', 'Công nợ khó đòi'], ['camp', '📣', 'Sự kiện & Ưu đãi'], ['live', '🎥', 'Livestream']].forEach(function (x) {
       if (!P.visible(x[0])) return; var t = P.tabDef(x[0]), b = t && t.badge ? t.badge() : '';
       h += '<button class="more-btn" data-act="goTab" data-id="' + x[0] + '"><span class="mi">' + x[1] + '</span><span>' + x[2] + '</span>' + (b ? '<i class="tbadge" style="display:inline-block">' + b + '</i>' : '') + '</button>';
     });
@@ -121,6 +121,7 @@
     var abn = G.autobuy ? G.autobuy.unreviewed() : 0; if (abn) alerts.push('📋 ' + abn + ' mặt hàng Thủ kho đề xuất mua - vào tab Nhập để duyệt');
     var ws = G.shipping.pendingCount(); if (ws) alerts.push('📦 ' + ws + ' đơn chờ đặt ship' + (G.shipping.sameDayOk() ? ' - đặt trước 17h để giao trong ngày' : ' - quá 17h: giao sáng mai'));
     var mc = G.shipping.morningCount(); if (mc) alerts.push('🚚 ' + mc + ' đơn giao sáng nay');
+    var qc = G.quests.claimable(), qp = G.quests.pending(); if (qc) alerts.push('🎁 ' + qc + ' phần thưởng nhiệm vụ/thành tựu chờ nhận - vào Thêm → Nhiệm vụ'); else if (qp) alerts.push('🎯 Còn ' + qp + ' nhiệm vụ hôm nay chưa xong');
     var lows = s.money < 0 ? ['⚠ Tiền mặt đang âm!'] : []; alerts = lows.concat(alerts);
     h += '<div class="card"><b>Việc cần làm</b>' + (alerts.length ? '<ul class="alist">' + alerts.map(function (a) { return '<li>' + E(a) + '</li>'; }).join('') + '</ul>' : '<p class="muted small">Mọi thứ đang ổn.</p>') + '</div>';
     h += '<div class="card small muted">💡 Chạm vào kệ / giường trưng bày trên sơ đồ để chọn MẫU trưng bày (mỗi ô 1 mẫu, hàng bán lấy từ kho); giữ lâu để mở menu nhanh; kéo thẻ mẫu trong Kho thả lên kệ.</div>';
