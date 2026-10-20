@@ -370,7 +370,7 @@ Các module giao tiếp qua `G.on/G.emit` (sự kiện: `tick`, `hour`, `dayStar
 - Hướng dẫn NPC (Bác Tư & Mai) **đã gắn vào game** (mục 23) nhưng mới được thử bằng bot giả lập thao tác trong trình duyệt; **chưa thử bằng cảm ứng thật**, chưa thử trên desktop rộng, và camera/thời tiết trong từng cảnh chỉ là cảnh vẽ riêng trong hộp thoại chứ không điều khiển cửa hàng thật.
 - Không dùng git (không có lịch sử thay đổi).
 
-**Ý tưởng chưa làm:** bán online kênh khác ngoài livestream, đối thủ cạnh tranh, vay ngân hàng/trả góp, mở rộng cốt truyện.
+**Ý tưởng chưa làm:** bán online kênh khác ngoài livestream, vay ngân hàng/trả góp, mở rộng cốt truyện.
 
 ---
 
@@ -416,3 +416,15 @@ Mã ở `js/sim/welfare.js` (`G.welfare`) và `js/ui/welfareui.js`; mở ở **N
   Buổi diễn ra lúc bắt đầu ngày đã đặt; chỉ nhân viên đang đi làm (không nghỉ phép/đang học) nhận hiệu quả. Không đặt được vào ngày có training tập thể (khi đóng cửa).
 - **Thưởng lễ Tết:** đúng ngày lễ (lịch game) hiện hộp thoại hỏi mức thưởng: Tết Nguyên Đán (20/1, báo trước 5 ngày; 1 tháng / nửa tháng / lì xì 10% lương, **không thưởng bị -10 hài lòng**), 8/3, 30/4, Trung thu (15/9), 20/10, Giáng sinh (24/12) với mức nhỏ hơn và không thưởng thì không bị trừ. Mỗi lễ hỏi một lần mỗi năm game. Nhân viên làm dưới 3 tháng nhận theo tỉ lệ thâm niên (tối thiểu 30%). Thiếu tiền thì không chi được và nhân viên thất vọng.
 - **Chưa cân bằng:** mọi con số là giá trị khởi đầu, mới thử bằng `skipDays` và cỡ điện thoại; chưa chơi thật. Khi tua nhanh (`skipDays`) hộp thoại thưởng tự chọn mức "nửa tháng" (hoặc mức thấp hơn của lễ nhỏ).
+
+---
+
+## 26. Đối thủ cạnh tranh
+
+Mã ở `js/sim/rivals.js` (`G.rivals`) và `js/ui/rivalsui.js`; tab **Thêm → Đối thủ** (chấm đỏ khi có đối thủ đang khuyến mãi). Trạng thái ở `G.state.rivals`.
+
+- **Xuất hiện:** từ cấp 1 và ngày ≥ 15; số đối thủ tối đa theo cấp: cấp 1-2 → 1, cấp 3 → 2, cấp 4-5 → 3. Ba kiểu: *Giá rẻ* (hay khuyến mãi, kéo giá chấp nhận của hàng phổ thông xuống tới -5%), *Cao cấp* (từ cấp 3, hay săn nhân viên), *Bán online* (mạnh dần theo thời gian).
+- **Ảnh hưởng:** kéo bớt lượng khách (hiện ở dòng "Đối thủ" trong phân rã khách/giờ). Mỗi đối thủ kéo tối đa ~9-12% khách tùy kiểu khi sức mạnh 100, giảm khi danh tiếng cao; khi khuyến mãi thì tăng gấp 1,4-2,2 lần và tỉ lệ chốt đơn giảm 4%/đối thủ. Sức mạnh tự tiến dần về mức theo cấp cửa hàng.
+- **Sự kiện** (mỗi đối thủ khoảng 9-18 ngày một lần): khuyến mãi 4-6 ngày (hộp thoại hỏi đáp trả), mở rộng (mạnh thêm), săn nhân viên (nhân viên hài lòng ≥ 70 thì từ chối; thấp hơn thì hỏi tăng lương 15% để giữ), gặp sự cố (đối thủ tạm đóng cửa, hết ảnh hưởng vài ngày).
+- **Hành động của người chơi:** *Khảo sát* (14 ngày thấy số sức mạnh thật và lịch hành động, được báo trước 1 ngày; mặc định chỉ thấy mức Yếu/Vừa/Mạnh/Rất mạnh), *Đáp trả* (7 ngày giảm nửa ảnh hưởng, bỏ phạt chốt đơn), *Thâu tóm* (từ cấp 3, giá ~12 tháng tiền thuê × (0,5 + sức mạnh/100); +3% khách vĩnh viễn, +2 danh tiếng, đối thủ mới sau ~4 tháng; mở thành tựu "Nuốt chửng đối thủ"). Chi phí khảo sát/đáp trả theo đơn vị thưởng của nhiệm vụ ngày (tự co giãn theo doanh thu).
+- **Chưa cân bằng:** mọi con số là giá trị khởi đầu; mới thử bằng `skipDays` và `levelUp()` (danh tiếng 100 nên ảnh hưởng đo được chỉ 2-5%); chưa thử với danh tiếng thấp hoặc nhiều đối thủ cùng lúc.
