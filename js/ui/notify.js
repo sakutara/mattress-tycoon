@@ -38,9 +38,13 @@
       var el = document.createElement('div');
       el.className = 'toast ' + (type || 'info');
       el.innerHTML = text;
+      // trùng nội dung với toast đang hiện thì bỏ toast cũ, tránh chồng nhiều dòng giống nhau
+      Array.prototype.slice.call(root.children).forEach(function (c) { if (c.innerHTML === el.innerHTML) root.removeChild(c); });
       root.appendChild(el);
-      while (root.children.length > 3) root.removeChild(root.firstChild);
-      setTimeout(function () { el.classList.add('out'); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 400); }, ms || 3500);
+      while (root.children.length > 2) root.removeChild(root.firstChild);
+      var kill = function () { el.classList.add('out'); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300); };
+      el.addEventListener('click', kill); // chạm vào thông báo để tắt ngay
+      setTimeout(kill, ms || 2500);
     },
     // ---- chuông ----
     // opts: {title, text, type, sound, toast:true, onClick}
