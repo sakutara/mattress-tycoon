@@ -33,11 +33,12 @@
       });
       return { ok: true };
     },
-    branchCost: function () { return [1.5e9, 3e9][G.state.branches] || 0; },
+    maxBranches: function () { return 2; },   // doanh nghiệp (corp.js) nâng lên theo cấp công ty
+    branchCost: function () { return [1.5e9, 3e9, 5e9, 7.5e9, 10e9, 14e9, 18e9, 24e9][G.state.branches] || 0; },
     buyBranch: function () {
       var s = G.state;
       if (!G.lvl().branches) return { ok: false, msg: 'Cần cấp Chuỗi cửa hàng' };
-      if (s.branches >= 2) return { ok: false, msg: 'Đã mở tối đa 2 chi nhánh' };
+      if (s.branches >= P.maxBranches()) return { ok: false, msg: 'Đã mở tối đa ' + P.maxBranches() + ' chi nhánh' + (P.maxBranches() < 8 ? ' (nâng cấp công ty để mở thêm)' : '') };
       if (G.staff.count('manager') < s.branches + 1) return { ok: false, msg: 'Mỗi chi nhánh cần 1 Quản lý cửa hàng (hiện có ' + G.staff.count('manager') + ')' };
       var c = P.branchCost(); if (s.money < c) return { ok: false, msg: 'Không đủ tiền' };
       G.econ.cash(-c); s.branches++;
@@ -53,7 +54,7 @@
   G.on('dayEnd', function () {
     var s = G.state;
     if (s.branches > 0 && G.staff.count('manager') >= s.branches) {
-      var inc = s.branches * 15e6 * (G.reviews.avg() / 3);
+      var inc = s.branches * 15e6 * (G.reviews.avg() / 3) * (G.corp ? G.corp.branchMult() : 1);
       G.econ.income(Math.round(inc), 'branch');
     }
   });

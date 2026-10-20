@@ -370,7 +370,7 @@ Các module giao tiếp qua `G.on/G.emit` (sự kiện: `tick`, `hour`, `dayStar
 - Hướng dẫn NPC (Bác Tư & Mai) **đã gắn vào game** (mục 23) nhưng mới được thử bằng bot giả lập thao tác trong trình duyệt; **chưa thử bằng cảm ứng thật**, chưa thử trên desktop rộng, và camera/thời tiết trong từng cảnh chỉ là cảnh vẽ riêng trong hộp thoại chứ không điều khiển cửa hàng thật.
 - Không dùng git (không có lịch sử thay đổi).
 
-**Ý tưởng chưa làm:** bán online kênh khác ngoài livestream, vay ngân hàng/trả góp, mở rộng cốt truyện.
+**Ý tưởng chưa làm:** bán online kênh khác ngoài livestream, trả góp cho khách, mở rộng cốt truyện.
 
 ---
 
@@ -428,3 +428,18 @@ Mã ở `js/sim/rivals.js` (`G.rivals`) và `js/ui/rivalsui.js`; tab **Thêm →
 - **Sự kiện** (mỗi đối thủ khoảng 9-18 ngày một lần): khuyến mãi 4-6 ngày (hộp thoại hỏi đáp trả), mở rộng (mạnh thêm), săn nhân viên (nhân viên hài lòng ≥ 70 thì từ chối; thấp hơn thì hỏi tăng lương 15% để giữ), gặp sự cố (đối thủ tạm đóng cửa, hết ảnh hưởng vài ngày).
 - **Hành động của người chơi:** *Khảo sát* (14 ngày thấy số sức mạnh thật và lịch hành động, được báo trước 1 ngày; mặc định chỉ thấy mức Yếu/Vừa/Mạnh/Rất mạnh), *Đáp trả* (7 ngày giảm nửa ảnh hưởng, bỏ phạt chốt đơn), *Thâu tóm* (từ cấp 3, giá ~12 tháng tiền thuê × (0,5 + sức mạnh/100); +3% khách vĩnh viễn, +2 danh tiếng, đối thủ mới sau ~4 tháng; mở thành tựu "Nuốt chửng đối thủ"). Chi phí khảo sát/đáp trả theo đơn vị thưởng của nhiệm vụ ngày (tự co giãn theo doanh thu).
 - **Chưa cân bằng:** mọi con số là giá trị khởi đầu; mới thử bằng `skipDays` và `levelUp()` (danh tiếng 100 nên ảnh hưởng đo được chỉ 2-5%); chưa thử với danh tiếng thấp hoặc nhiều đối thủ cùng lúc.
+
+---
+
+## 27. Doanh nghiệp (công ty, phòng ban, vay, gọi vốn, nhượng quyền)
+
+Mã ở `js/sim/corp.js` (`G.corp`) và `js/ui/corpui.js`; tab **Thêm → Doanh nghiệp** (hiện từ cấp 4). Trạng thái ở `G.state.corp`. Chi nhánh dùng lại `G.progress` (đã nới giới hạn).
+
+- **Ba cấp công ty:** Công ty TNHH (phí 1,5 tỷ, doanh thu tích lũy ≥ 25 tỷ, cần cấp Chuỗi cửa hàng) → Công ty cổ phần (8 tỷ, ≥ 80 tỷ, ≥ 2 phòng ban) → Tập đoàn (30 tỷ, ≥ 250 tỷ, ≥ 4 phòng ban). Mỗi cấp tăng số chi nhánh tối đa (2 → 4 / 6 / 8), số phòng ban (3 / 5 / 6) và đại lý nhượng quyền (0 / 5 / 12).
+- **Phòng ban** (lập một lần + chi phí tháng, ghi vào chi phí "Chi phí doanh nghiệp"): Mua hàng (hoàn 5% giá vốn hằng tháng), Kinh doanh (+6% khách), Tài chính (giảm thêm 8% thuế, lãi vay -0,2%/tháng), Nhân sự (+0,25 hài lòng/ngày), Marketing (+4% khách, +4% chốt), Logistics (-20% phí giao hàng ship).
+- **Chi nhánh mở rộng:** giá 1,5 / 3 / 5 / 7,5 / 10 / 14 / 18 / 24 tỷ; thu nhập thụ động mỗi chi nhánh ×(1 + 0,4 × cấp công ty); vẫn cần 1 Quản lý mỗi chi nhánh.
+- **Định giá:** doanh thu 12 tháng × 1,2 × hệ số cấp (1 / 1,25 / 1,5) × hệ số biên lợi nhuận (0,7-1,4) + 50% tiền mặt ròng (đã trừ nợ).
+- **Vay doanh nghiệp:** hạn mức 40% định giá; vay 2 / 5 / 10 / 25 tỷ, 12 tháng, lãi 1,1%/tháng trên dư nợ, trả gốc đều, phí 1%; có tất toán sớm. Không đủ tiền trả kỳ nào: phạt 3% dư nợ và -2 danh tiếng.
+- **Gọi vốn:** bán cổ phần 5/10/15% (tối đa 45%) theo 90% định giá, mua lại 115%; nhà đầu tư nhận 50% lợi nhuận tháng × tỉ lệ cổ phần. Cổ tức và gốc vay là dòng tiền (không vào P&L), lãi vay vào chi phí.
+- **Nhượng quyền** (từ Công ty cổ phần, cần Phòng Kinh doanh): phí ký 300 tr, bản quyền 18 tr/tháng/đại lý × hệ số danh tiếng (0,5-1,5), +1% khách mỗi đại lý; danh tiếng < 50 thì đại lý có thể làm ăn ẩu (-3 danh tiếng).
+- **Chưa cân bằng:** toàn bộ số mới thử bằng `levelUp()`/`skipDays` trên save có tiền và doanh thu rất lớn; chưa chơi từ cấp 5 tới công ty thật; chưa chắc phòng ban có lãi so với chi phí.

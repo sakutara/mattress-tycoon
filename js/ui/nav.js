@@ -8,7 +8,7 @@
     { id: 'stock', label: 'Kho', icon: '📦', tabs: ['stock', 'price', 'decor'] },
     { id: 'buy', label: 'Nhập', icon: '🛒', tabs: ['buy', 'cart', 'ship', 'deposit', 'b2b'] },
     { id: 'staff', label: 'Nhân viên', icon: '👥', tabs: ['staff'] },
-    { id: 'more', label: 'Thêm', icon: '☰', tabs: ['more', 'quests', 'rivals', 'report', 'upgrade', 'warranty', 'rev', 'debts', 'camp', 'live'] }
+    { id: 'more', label: 'Thêm', icon: '☰', tabs: ['more', 'quests', 'rivals', 'corp', 'report', 'upgrade', 'warranty', 'rev', 'debts', 'camp', 'live'] }
   ];
   P.sheetOpen = false;
   // tab chỉ hiện khi liên quan
@@ -20,6 +20,7 @@
     debts: function (s) { return s.events.debts.length > 0; },
     camp: function (s) { return s.level >= 1 || s.camp.reports.length > 0 || s.camp.offers.length > 0; },
     warranty: function (s) { return s.level >= 1 || s.returns.claims.length > 0 || s.returns.pending.length > 0; },
+    corp: function (s) { return s.corp.tier > 0 || s.level >= 4; },
     rivals: function (s) { return s.rivals.list.length > 0 || s.level >= 1; },
     live: function (s) { return s.level >= G.live.MIN_LEVEL || s.live.built; }
   };
@@ -29,7 +30,7 @@
   // trang "Thêm": danh sách các mục còn lại
   P.register({ id: 'more', label: 'Menu', render: function () {
     var s = G.state, h = '<div class="more-grid">';
-    [['quests', '🎯', 'Nhiệm vụ'], ['rivals', '⚔', 'Đối thủ'], ['report', '📊', 'Báo cáo'], ['upgrade', '⬆', 'Nâng cấp'], ['warranty', '🛠', 'Bảo hành'], ['rev', '⭐', 'Đánh giá'], ['debts', '💸', 'Công nợ khó đòi'], ['camp', '📣', 'Sự kiện & Ưu đãi'], ['live', '🎥', 'Livestream']].forEach(function (x) {
+    [['quests', '🎯', 'Nhiệm vụ'], ['rivals', '⚔', 'Đối thủ'], ['corp', '🏢', 'Doanh nghiệp'], ['report', '📊', 'Báo cáo'], ['upgrade', '⬆', 'Nâng cấp'], ['warranty', '🛠', 'Bảo hành'], ['rev', '⭐', 'Đánh giá'], ['debts', '💸', 'Công nợ khó đòi'], ['camp', '📣', 'Sự kiện & Ưu đãi'], ['live', '🎥', 'Livestream']].forEach(function (x) {
       if (!P.visible(x[0])) return; var t = P.tabDef(x[0]), b = t && t.badge ? t.badge() : '';
       h += '<button class="more-btn" data-act="goTab" data-id="' + x[0] + '"><span class="mi">' + x[1] + '</span><span>' + x[2] + '</span>' + (b ? '<i class="tbadge" style="display:inline-block">' + b + '</i>' : '') + '</button>';
     });

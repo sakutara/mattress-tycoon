@@ -144,7 +144,7 @@
     h += '<div class="card"><b>Nhân viên</b><p class="small muted">Không giới hạn số lượng mỗi vai trò. Quỹ lương hiện tại: ' + F.vnd(G.staff.payroll()) + '/tháng.</p></div>';
     h += '<div class="card"><b>Xe tải riêng</b><p class="small muted">Giảm 30% phí vận chuyển nội bộ giữa kho ↔ cửa hàng.</p>' + (s.ownTruck ? '<span class="pos">Đã sở hữu</span>' : '<button class="btn" data-act="truck">Mua xe tải · ' + F.short(150e6) + '</button>') + '</div>';
     if (!lv.branches) h += G.unlock.teaser('branch', false);
-    if (lv.branches) h += '<div class="card"><b>Chi nhánh (' + s.branches + '/2)</b><p class="small muted">Thu nhập thụ động ~15tr/ngày mỗi chi nhánh (nhân với ★/3), cần 1 Quản lý cho mỗi chi nhánh.</p><button class="btn" data-act="branch"' + (s.branches >= 2 ? ' disabled' : '') + '>Mở chi nhánh · ' + F.short(G.progress.branchCost()) + '</button></div>';
+    if (lv.branches) h += '<div class="card"><b>Chi nhánh (' + s.branches + '/' + G.progress.maxBranches() + ')</b><p class="small muted">Thu nhập thụ động ~15tr/ngày mỗi chi nhánh (nhân với ★/3), cần 1 Quản lý cho mỗi chi nhánh.</p><button class="btn" data-act="branch"' + (s.branches >= G.progress.maxBranches() ? ' disabled' : '') + '>Mở chi nhánh · ' + F.short(G.progress.branchCost()) + '</button></div>';
     return h;
   }
   P.act.lvlUp = function () { res(G.progress.upgrade()); };
