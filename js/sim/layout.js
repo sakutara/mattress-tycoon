@@ -62,7 +62,7 @@
     };
   }
   G.layout = {
-    get: function () { var l = G.state.level; return cache[l] || (cache[l] = build(l)); },
+    get: function (lv) { var l = lv == null ? G.state.level : lv; return cache[l] || (cache[l] = build(l)); },
     // vị trí ô kệ theo slot id: trả {kind, ax, ay, unit/bed, j}
     slotPos: function (slot, ord) {
       var L = G.layout.get(), n = ord[slot.id];
@@ -74,8 +74,8 @@
   };
   var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   G.path = {
-    find: function (sx, sy, tx, ty) {
-      var L = G.layout.get(), C = L.cols, R = L.rows;
+    find: function (sx, sy, tx, ty, lv) {
+      var L = G.layout.get(lv), C = L.cols, R = L.rows;
       sx = G.clamp(Math.floor(sx), 0, C - 1); sy = G.clamp(Math.floor(sy), 0, R - 1);
       tx = G.clamp(Math.floor(tx), 0, C - 1); ty = G.clamp(Math.floor(ty), 0, R - 1);
       if (sx === tx && sy === ty) return [{ x: tx + 0.5, y: ty + 0.5 }];
@@ -96,7 +96,7 @@
       while (c !== sy * C + sx) { path.push({ x: (c % C) + 0.5, y: Math.floor(c / C) + 0.5 }); c = prev[c]; }
       return path.reverse();
     },
-    goto: function (ent, tx, ty) { ent.path = G.path.find(ent.x, ent.y, tx, ty); },
+    goto: function (ent, tx, ty, lv) { ent.path = G.path.find(ent.x, ent.y, tx, ty, lv); },
     // di chuyển thực thể theo `sec` giây mô phỏng
     move: function (ent, sec) {
       var step = (ent.speed || 2) * sec; ent.moving = false;

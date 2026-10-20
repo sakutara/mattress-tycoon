@@ -55,7 +55,7 @@
     var s = G.state;
     if (s.branches > 0 && G.staff.count('manager') >= s.branches) {
       var inc = s.branches * 15e6 * (G.reviews.avg() / 3) * (G.corp ? G.corp.branchMult() : 1);
-      G.econ.income(Math.round(inc), 'branch');
+      G.econ.income(Math.round(inc), 'branch'); G.emit('branchIncome', { total: Math.round(inc), n: s.branches });
     }
   });
   G.on('dayStart', function () {

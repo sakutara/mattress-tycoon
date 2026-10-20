@@ -34,7 +34,7 @@
       if (!P.visible(x[0])) return; var t = P.tabDef(x[0]), b = t && t.badge ? t.badge() : '';
       h += '<button class="more-btn" data-act="goTab" data-id="' + x[0] + '"><span class="mi">' + x[1] + '</span><span>' + x[2] + '</span>' + (b ? '<i class="tbadge" style="display:inline-block">' + b + '</i>' : '') + '</button>';
     });
-    h += '<button class="more-btn" data-act="openLookbook"><span class="mi">📖</span><span>Lookbook</span></button><button class="more-btn" data-act="openBook"><span class="mi">🧓</span><span>Sổ tay Bác Tư</span></button></div>';
+    h += '' + (s.level >= 4 || s.branches > 0 ? '<button class="more-btn" data-act="openChainMap"><span class="mi">🗺</span><span>Bản đồ chuỗi</span></button>' : '') + '<button class="more-btn" data-act="openLookbook"><span class="mi">📖</span><span>Lookbook</span></button><button class="more-btn" data-act="openBook"><span class="mi">🧓</span><span>Sổ tay Bác Tư</span></button></div>';
     var t = UI.unlockTeasers ? UI.unlockTeasers() : ''; return h + t;
   } });
   P.act.goTab = function (el) { P.show(el.dataset.id); };

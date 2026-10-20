@@ -12,8 +12,8 @@
     GRID: { room: [8, 7], studio: [8, 7] },
     MARG: { shop: { l: 1.1, r: 1.0, b: 0.4, f: 2.3 }, room: { l: 0.5, r: 0.5, b: 0.3, f: 0.7 }, studio: { l: 0.5, r: 0.5, b: 0.3, f: 0.7 } },
     WALLH: 74, HILLS: 74, TH: 16, PADX: 14,
-    gridOf: function (id) { if (id === 'shop') { var L = G.layout.get(); return [L.cols, L.rows]; } return R.GRID[id]; },
-    plateOf: function (id) { var g = R.gridOf(id), m = R.MARG[id]; return { gx0: -m.l * T, gx1: (g[0] + m.r) * T, gy0: -m.b * T, gy1: (g[1] + m.f) * T }; },
+    gridOf: function (id, lv) { if (id === 'shop') { var L = G.layout.get(lv); return [L.cols, L.rows]; } return R.GRID[id]; },
+    plateOf: function (id, lv) { var g = R.gridOf(id, lv), m = R.MARG[id]; return { gx0: -m.l * T, gx1: (g[0] + m.r) * T, gy0: -m.b * T, gy1: (g[1] + m.f) * T }; },
     frames: function () {
       var key = G.state.level + '|' + (G.state.staffroom.built ? 1 : 0) + (G.state.live.built ? 1 : 0); if (R._fr && R._frKey === key) return R._fr;
       var fr = {}, ids = ['room', 'shop', 'studio'];
@@ -244,8 +244,8 @@
       var g = c.createLinearGradient(0, 0, 0, fr.h); g.addColorStop(0, '#fdeadf'); g.addColorStop(1, '#f9d9c8'); c.fillStyle = g; c.fillRect(0, 0, fr.w, fr.h);
       R.hills(c, fr);
     },
-    paintShop: function (c) {
-      var L = G.layout.get(), C = L.cols, Rr = L.rows, p = R.plateOf('shop'), s = G.state, x, y;
+    paintShop: function (c, lv, opts) {
+      var L = G.layout.get(lv), C = L.cols, Rr = L.rows, p = R.plateOf('shop', lv), s = G.state, o = opts || {}, hasRoom = !o.noRoom && G.state.staffroom.built, x, y;
       SP.plate(c, p.gx0, p.gy0, p.gx1, p.gy1, R.TH, '#f7d2b8', '#e9b79f', '#d79f8d');
       // mảng đất low-poly (3 tông nhẹ)
       for (y = -1; y < Rr + 3; y += 2) for (x = -1; x < C + 2; x += 2) { var h = SP.hash(x + 40, y + 40); if (h < 0.5) SP.isoDiamond(c, Math.max(p.gx0, x * T), Math.max(p.gy0, y * T), Math.min(2 * T, p.gx1 - Math.max(p.gx0, x * T)), Math.min(2 * T, p.gy1 - Math.max(p.gy0, y * T)), 0, h < 0.25 ? 'rgba(255,240,226,.35)' : 'rgba(233,170,150,.16)'); }
@@ -263,15 +263,15 @@
       SP.pine(c, -0.62 * T, (Rr * 0.6) * T, 1.1); SP.pine(c, -0.55 * T, (Rr * 0.85) * T, 0.9);
       // tường sau + tường trái (cắt thấp)
       var cy = G.staffroom.cy ? G.staffroom.cy() : Math.floor(Rr / 2), WH = R.WALLH;
-      SP.leftWall(c, Rr, WH, '#f2e6dc', G.state.staffroom.built ? [[cy, cy + 1]] : null);
+      SP.leftWall(c, Rr, WH, '#f2e6dc', hasRoom ? [[cy, cy + 1]] : null);
       SP.backWall(c, C, WH, '#f7efe9');
       for (x = 1; x + 2 <= C - 1; x += 3) { if (x > C / 2 - 4 && x < C / 2 + 4) continue; SP.window(c, 'b', x * T, 8, 54, 26, 30); if ((x + 1) % 2) SP.awning(c, x * T, 4, 62, 62); }
-      for (y = 3; y + 2 <= Rr - 1; y += 3) if (!(G.state.staffroom.built && y <= cy && y + 2 >= cy)) SP.window(c, 'l', y * T, 10, 54, 26, 30);
+      for (y = 3; y + 2 <= Rr - 1; y += 3) if (!(hasRoom && y <= cy && y + 2 >= cy)) SP.window(c, 'l', y * T, 10, 54, 26, 30);
       // biển hiệu giữa tường sau
-      var cxs = C * T / 2, sgn = (s.shopName || 'Cửa hàng').toUpperCase(), tx = SP.wallBack(cxs, 0, 0);
+      var cxs = C * T / 2, sgn = (o.name || s.shopName || 'Cửa hàng').toUpperCase(), tx = SP.wallBack(cxs, 0, 0);
       var bw = 150; function wb(u, v) { return SP.wallBack(cxs, u, v); }
       poly(c, [wb(-bw, 46), wb(bw, 46), wb(bw, 68), wb(-bw, 68)], '#fffaf4'); poly(c, [wb(-bw + 4, 49), wb(bw - 4, 49), wb(bw - 4, 65), wb(-bw + 4, 65)], '#f0a24a');
-      c.save(); var o = wb(0, 53); c.transform(SP.HX / T, SP.HY / T, 0, 1, o[0], o[1]); c.fillStyle = '#fffaf4'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.fillText((sgn + ' · ' + G.lvl().name).slice(0, 34), 0, 0); c.restore();
+      c.save(); var o = wb(0, 53); c.transform(SP.HX / T, SP.HY / T, 0, 1, o[0], o[1]); c.fillStyle = '#fffaf4'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.fillText((sgn + ' · ' + (o.sub || G.lvl().name)).slice(0, 34), 0, 0); c.restore();
       // dây cờ nhỏ trên tường
       for (var i = -5; i <= 5; i++) { var a = wb(i * 28, 70 - Math.abs(i) * 0.3); poly(c, [[a[0] - 4, a[1]], [a[0] + 4, a[1]], [a[0], a[1] + 8]], ['#f4b6c2', '#9fd0f0', '#ffd06b', '#8fcf7a'][(i + 8) % 4]); }
       // thiên nhiên xung quanh

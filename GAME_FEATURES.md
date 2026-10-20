@@ -443,3 +443,14 @@ Mã ở `js/sim/corp.js` (`G.corp`) và `js/ui/corpui.js`; tab **Thêm → Doanh
 - **Gọi vốn:** bán cổ phần 5/10/15% (tối đa 45%) theo 90% định giá, mua lại 115%; nhà đầu tư nhận 50% lợi nhuận tháng × tỉ lệ cổ phần. Cổ tức và gốc vay là dòng tiền (không vào P&L), lãi vay vào chi phí.
 - **Nhượng quyền** (từ Công ty cổ phần, cần Phòng Kinh doanh): phí ký 300 tr, bản quyền 18 tr/tháng/đại lý × hệ số danh tiếng (0,5-1,5), +1% khách mỗi đại lý; danh tiếng < 50 thì đại lý có thể làm ăn ẩu (-3 danh tiếng).
 - **Chưa cân bằng:** toàn bộ số mới thử bằng `levelUp()`/`skipDays` trên save có tiền và doanh thu rất lớn; chưa chơi từ cấp 5 tới công ty thật; chưa chắc phòng ban có lãi so với chi phí.
+
+---
+
+## 28. Bản đồ chuỗi cửa hàng
+
+Mã ở `js/sim/chain.js` (`G.chain`, dữ liệu từng chi nhánh) và `js/ui/chainmapui.js` (bản đồ SVG). Mở bằng **Thêm → Bản đồ chuỗi** (từ cấp 4 hoặc khi đã có chi nhánh) hoặc nút "Xem bản đồ chuỗi" trong tab Doanh nghiệp; hiện trong bảng trượt thứ hai.
+
+- **Ghim:** trụ sở (vàng, Hoàn Kiếm), chi nhánh (xanh lá tốt / cam hiệu suất thấp / xám khi thiếu Quản lý), đại lý nhượng quyền (cam nhỏ), đối thủ (đỏ), chỗ trống có thể mở (dấu +, chạm để mua chi nhánh), chỗ chưa mở khóa (ổ khóa). Chạm ghim để xem chi tiết: trụ sở (doanh thu/lãi hôm nay, khách, nhân viên), chi nhánh (trạng thái, thu nhập TB 7 ngày, ước tính tháng, tổng từ khi mở, hiệu suất khu vực, xếp hạng), đại lý, đối thủ.
+- **Dữ liệu chi nhánh:** mỗi chi nhánh có khu vực (Cầu Giấy, Tây Hồ, Thanh Xuân, Long Biên, Hà Đông, Hai Bà Trưng, Hoàng Mai, Đống Đa) và hệ số hiệu suất ngẫu nhiên 0,85-1,15. Tổng thu nhập vẫn do `progress.js` tính (phát sự kiện `branchIncome`) rồi chia theo hệ số, nên **không đổi cân bằng**, chỉ cho biết chi nhánh nào đóng góp nhiều. Save cũ có chi nhánh sẽ được tạo dữ liệu khi mở bản đồ lần đầu (số "tổng từ khi mở" chỉ tính từ lúc đó).
+- **Xem nội thất:** chạm ghim chi nhánh → "Xem nội thất cửa hàng". Mã ở `js/render/branchscene.js`: vẽ lại cảnh cửa hàng isometric theo bố cục cấp **Showroom** (2 chi nhánh đầu) hoặc cấp **Cửa hàng mặt phố** (các chi nhánh sau), biển hiệu riêng "Vua Chăn Ga · khu vực", mẫu trưng bày **đồng bộ với trụ sở**, Quản lý thật của công ty đứng quầy (theo thứ tự chi nhánh), 1-2 nhân viên bán hàng và vài khách đi lại/xem hàng/thanh toán (người trên cảnh chỉ để minh họa, không ảnh hưởng doanh thu). Thiếu Quản lý thì cảnh bị phủ tối kèm biển "Thiếu Quản lý - tạm đóng cửa". Để vẽ được, `G.layout.get(lv)`, `G.path.find(..., lv)`, `R.paintShop(c, lv, opts)` nay nhận cấp tùy chọn (mặc định vẫn là cấp hiện tại).
+- **Hạn chế:** bản đồ chỉ là sơ đồ minh họa (vị trí ghim cố định theo ô); nội thất chi nhánh chưa có trang trí riêng, chưa phản ánh thời tiết/giờ trong ngày; mới thử trên cỡ điện thoại 375px.
