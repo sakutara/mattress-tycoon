@@ -89,7 +89,7 @@
   };
   G.conversionMods.push(function () { return 1 + 0.08 * RV.replyRate(); });
   // CSKH tự phản hồi đánh giá ★3-5: ★4-5 cảm ơn, ★3 giải thích. ★1-2 để người chơi tự xử lý. Không bao giờ phản bác.
-  RV.cskhCap = function () { var t = 0; G.staff.byRole('cskh').forEach(function (x) { if (x.status === 'ok') t += 3 + 2 * x.stars; }); return t; };
+  RV.cskhCap = function () { var t = 0; G.staff.byRole('cskh').forEach(function (x) { if (x.status === 'ok') t += 8 + 4 * x.stars; }); return t; };
   RV.autoReply = function () {
     var s = G.state; if (!s.revs.auto) return 0;
     var cap = RV.cskhCap(), n = 0; if (!cap) return 0;
